@@ -180,8 +180,8 @@ export default function App() {
 
   if (!fontsLoaded || isRestoring) {
     return (
-      <View style={{ flex: 1, backgroundColor: '#f8fafc', justifyContent: 'center', alignItems: 'center' }}>
-        <StatusBar barStyle="dark-content" backgroundColor="#f8fafc" />
+      <View style={{ flex: 1, backgroundColor: '#ffffff', justifyContent: 'center', alignItems: 'center' }}>
+        <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
       </View>
     );
   }
@@ -371,15 +371,12 @@ export default function App() {
   const renderSidebar = () => (
     <View style={[styles.sidebar, isMobile && styles.sidebarMobile]}>
       <View style={styles.sidebarUserWrapper}>
-        <Pressable
-          style={({ hovered }: any) => [styles.sidebarUserSection, hovered && styles.hoverOpacity]}
-          onPress={() => setUserMenuOpen(!userMenuOpen)}
-        >
+        <View style={styles.sidebarUserSection}>
           <View style={styles.userAvatar}>
             <Text style={styles.userAvatarText}>c</Text>
           </View>
           {!isMobile && <Text style={styles.userName}>conta</Text>}
-        </Pressable>
+        </View>
       </View>
 
       <Pressable style={({ hovered }: any) => [styles.balanceCard, hovered && styles.hoverOpacity]}>
@@ -429,7 +426,7 @@ export default function App() {
 
     return (
       <View style={[styles.dashboardContainer, isMobile && styles.dashboardContainerMobile]}>
-        <StatusBar barStyle="dark-content" backgroundColor="#f8fafc" />
+        <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
         {renderSidebar()}
 
         <ScrollView
@@ -581,7 +578,7 @@ export default function App() {
   if (screen === 'dashboard') {
     return (
       <View style={[styles.dashboardContainer, isMobile && styles.dashboardContainerMobile]}>
-        <StatusBar barStyle="dark-content" backgroundColor="#f8fafc" />
+        <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
         {renderSidebar()}
 
         <ScrollView
@@ -816,7 +813,7 @@ export default function App() {
           <Pressable style={styles.logoArea} onPress={() => setScreen('home')}>
             <Image
               source={require('../assets/images/logo.png')}
-              style={{ width: 140, height: 45, tintColor: '#2563eb' }}
+              style={{ width: 130, height: 40, tintColor: '#2563eb' }}
               resizeMode="contain"
             />
           </Pressable>
@@ -939,7 +936,7 @@ export default function App() {
         <View style={styles.loginHeaderArea}>
           <Image
             source={require('../assets/images/logo.png')}
-            style={{ width: 180, height: 65, tintColor: '#2563eb', marginBottom: 15 }}
+            style={{ width: 160, height: 60, tintColor: '#2563eb', marginBottom: 15 }}
             resizeMode="contain"
           />
           <Text style={styles.loginTitleModern}>Bem-vindo de volta</Text>
@@ -1045,7 +1042,7 @@ const styles = StyleSheet.create({
   },
   navbarMobile: {
     paddingHorizontal: 16,
-    height: 70,
+    height: 60,
   },
   logoArea: {
     flexDirection: 'row',
@@ -1087,9 +1084,9 @@ const styles = StyleSheet.create({
   },
   heroMobile: {
     flexDirection: 'column',
-    paddingHorizontal: 20,
-    paddingVertical: 30,
-    gap: 30,
+    paddingHorizontal: 16,
+    paddingVertical: 20,
+    gap: 20,
   },
   heroLeft: {
     flex: 1,
@@ -1109,8 +1106,8 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   heroTitleMobile: {
-    fontSize: 32,
-    lineHeight: 40,
+    fontSize: 28,
+    lineHeight: 36,
     textAlign: 'center',
   },
   heroDescription: {
@@ -1167,7 +1164,7 @@ const styles = StyleSheet.create({
     paddingBottom: 40,
   },
   platformsSectionMobile: {
-    paddingHorizontal: 20,
+    paddingHorizontal: 16,
     paddingBottom: 20,
   },
   platformsSectionTitle: {
@@ -1401,24 +1398,26 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 20,
+    padding: 16,
+    minHeight: '100%',
   },
   loginBackButton: {
     position: 'absolute',
-    top: 30,
-    left: 30,
+    top: 20,
+    left: 16,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
     backgroundColor: '#ffffff',
-    paddingHorizontal: 16,
-    paddingVertical: 10,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
     borderRadius: 20,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.05,
     shadowRadius: 4,
     elevation: 2,
+    zIndex: 10,
   },
   loginBackText: {
     fontSize: 14,
@@ -1430,7 +1429,7 @@ const styles = StyleSheet.create({
     maxWidth: 440,
     backgroundColor: '#ffffff',
     borderRadius: 20,
-    padding: 40,
+    padding: 24,
     shadowColor: '#1e3a8a',
     shadowOffset: { width: 0, height: 10 },
     shadowOpacity: 0.1,
@@ -1439,16 +1438,16 @@ const styles = StyleSheet.create({
   },
   loginHeaderArea: {
     alignItems: 'center',
-    marginBottom: 30,
+    marginBottom: 20,
   },
   loginTitleModern: {
-    fontSize: 24,
+    fontSize: 22,
     fontWeight: '800',
     color: '#0f172a',
-    marginBottom: 6,
+    marginBottom: 4,
   },
   loginSubtitleModern: {
-    fontSize: 14,
+    fontSize: 13,
     color: '#64748b',
   },
   formModern: {
@@ -1456,14 +1455,14 @@ const styles = StyleSheet.create({
   },
   inputContainerModern: {
     width: '100%',
-    height: 56,
+    height: 52,
     flexDirection: 'row',
     alignItems: 'center',
     borderWidth: 1.5,
     borderColor: '#e2e8f0',
     borderRadius: 12,
     paddingHorizontal: 16,
-    marginBottom: 16,
+    marginBottom: 14,
     backgroundColor: '#f8fafc',
   },
   inputContainerFocused: {
@@ -1485,8 +1484,8 @@ const styles = StyleSheet.create({
   },
   loginButtonModern: {
     width: '100%',
-    height: 52,
-    marginTop: 10,
+    height: 50,
+    marginTop: 6,
     borderRadius: 12,
     backgroundColor: '#2563eb',
     justifyContent: 'center',
@@ -1506,7 +1505,7 @@ const styles = StyleSheet.create({
   dashboardContainer: {
     flex: 1,
     flexDirection: 'row',
-    backgroundColor: '#f8fafc',
+    backgroundColor: '#ffffff',
     minHeight: '100%',
   },
   dashboardContainerMobile: {
@@ -1517,7 +1516,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#ffffff',
     borderRightWidth: 1,
     borderRightColor: '#e2e8f0',
-    paddingVertical: 24,
+    paddingVertical: 20,
     paddingHorizontal: 16,
     flexDirection: 'column',
   },
@@ -1527,10 +1526,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingVertical: 10,
-    paddingHorizontal: 12,
+    paddingHorizontal: 16,
     borderRightWidth: 0,
     borderBottomWidth: 1,
     borderBottomColor: '#e2e8f0',
+    backgroundColor: '#ffffff',
   },
   sidebarUserWrapper: {
     position: 'relative',
@@ -1539,26 +1539,26 @@ const styles = StyleSheet.create({
   sidebarUserSection: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
+    paddingHorizontal: 4,
+    paddingVertical: 2,
   },
   userAvatar: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
+    width: 34,
+    height: 34,
+    borderRadius: 17,
     backgroundColor: '#2563eb',
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 10,
+    marginRight: 8,
   },
   userAvatarText: {
     color: '#ffffff',
     fontWeight: '700',
-    fontSize: 15,
+    fontSize: 14,
   },
   userName: {
     flex: 1,
-    fontSize: 15,
+    fontSize: 14,
     fontWeight: '600',
     color: '#0f172a',
   },
@@ -1568,44 +1568,44 @@ const styles = StyleSheet.create({
     backgroundColor: '#eff6ff',
     borderWidth: 1,
     borderColor: '#bfdbfe',
-    borderRadius: 12,
-    padding: 12,
-    marginBottom: 20,
+    borderRadius: 10,
+    padding: 10,
+    marginBottom: 16,
   },
   balanceIconBox: {
-    width: 36,
-    height: 36,
+    width: 32,
+    height: 32,
     borderRadius: 8,
     backgroundColor: '#dbeafe',
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 10,
+    marginRight: 8,
   },
   balanceInfo: {
     flex: 1,
   },
   balanceLabel: {
-    fontSize: 11,
+    fontSize: 10,
     fontWeight: '700',
     color: '#1d4ed8',
     letterSpacing: 0.5,
   },
   balanceValue: {
-    fontSize: 17,
+    fontSize: 15,
     fontWeight: '800',
     color: '#1e40af',
   },
   menuItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 10,
-    paddingHorizontal: 10,
+    paddingVertical: 8,
+    paddingHorizontal: 8,
     borderRadius: 8,
     marginBottom: 4,
-    gap: 12,
+    gap: 10,
   },
   menuIconContainer: {
-    width: 24,
+    width: 20,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -1613,7 +1613,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#f1f5f9',
   },
   menuItemText: {
-    fontSize: 14,
+    fontSize: 13,
     color: '#475569',
     fontWeight: '500',
     flex: 1,
@@ -1625,68 +1625,64 @@ const styles = StyleSheet.create({
   sidebarLogoutButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 10,
-    paddingVertical: 12,
-    paddingHorizontal: 10,
+    gap: 8,
+    paddingVertical: 10,
+    paddingHorizontal: 8,
     borderTopWidth: 1,
     borderTopColor: '#f1f5f9',
     marginTop: 'auto',
   },
   sidebarLogoutText: {
-    fontSize: 14,
+    fontSize: 13,
     color: '#ef4444',
     fontWeight: '600',
   },
   dashboardMain: {
     flex: 1,
-    backgroundColor: '#f8fafc',
+    backgroundColor: '#ffffff',
   },
   dashboardMainContent: {
-    paddingHorizontal: 35,
-    paddingTop: 35,
+    paddingHorizontal: 30,
+    paddingTop: 30,
     paddingBottom: 40,
     width: '100%',
   },
   dashboardMainContentMobile: {
     paddingHorizontal: 16,
-    paddingTop: 20,
+    paddingTop: 16,
     paddingBottom: 20,
   },
   dashboardHeaderArea: {
-    marginBottom: 20,
+    marginBottom: 16,
   },
   instructionsTopText: {
-    fontSize: 14,
+    fontSize: 13,
     color: '#64748b',
     fontWeight: '400',
   },
   urlInput: {
     width: '100%',
-    height: 220,
+    height: 180,
     borderWidth: 1.5,
     borderColor: '#cbd5e1',
-    borderRadius: 12,
+    borderRadius: 10,
     backgroundColor: '#ffffff',
-    padding: 16,
-    fontSize: 15,
+    padding: 14,
+    fontSize: 14,
     color: '#0f172a',
     outlineStyle: 'none' as any,
-    marginBottom: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.02,
-    shadowRadius: 2,
+    marginBottom: 16,
   },
   getFilesButton: {
-    height: 52,
-    paddingHorizontal: 32,
+    height: 48,
+    paddingHorizontal: 24,
     backgroundColor: '#2563eb',
     flexDirection: 'row',
     alignSelf: 'flex-start',
     justifyContent: 'center',
     alignItems: 'center',
-    borderRadius: 12,
-    marginBottom: 35,
+    borderRadius: 10,
+    marginBottom: 24,
     shadowColor: '#2563eb',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.2,
@@ -1694,7 +1690,7 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   getFilesButtonText: {
-    fontSize: 15,
+    fontSize: 14,
     color: '#ffffff',
     fontWeight: '700',
   },
@@ -1703,8 +1699,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
-    gap: 12,
-    paddingBottom: 20,
+    gap: 10,
+    paddingBottom: 10,
   },
   platformRowItem: {
     width: '24%',
@@ -1713,15 +1709,11 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#e2e8f0',
     borderRadius: 8,
-    paddingVertical: 12,
-    paddingHorizontal: 14,
+    paddingVertical: 10,
+    paddingHorizontal: 12,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.02,
-    shadowRadius: 2,
   },
   platformNameWrapper: {
     flexDirection: 'row',
@@ -1729,24 +1721,24 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   platformLogoImage: {
-    width: 18,
-    height: 18,
+    width: 16,
+    height: 16,
     borderRadius: 3,
     marginRight: 8,
   },
   platformNameText: {
-    fontSize: 13,
+    fontSize: 12,
     color: '#334155',
     fontWeight: '600',
   },
   platformCostBadge: {
     backgroundColor: '#f1f5f9',
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 6,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 4,
   },
   platformCostText: {
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: '700',
     color: '#0f172a',
   },
@@ -1760,23 +1752,23 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    marginBottom: 20,
+    marginBottom: 16,
     backgroundColor: '#ffffff',
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 6,
     alignSelf: 'flex-start',
     borderWidth: 1,
     borderColor: '#e2e8f0',
   },
   backButtonText: {
-    fontSize: 14,
+    fontSize: 13,
     color: '#0f172a',
     fontWeight: '600',
   },
   previewVerticalLayout: {
     flexDirection: 'column',
-    gap: 20,
+    gap: 16,
     width: '100%',
   },
   previewFileCard: {
@@ -1784,20 +1776,16 @@ const styles = StyleSheet.create({
     backgroundColor: '#ffffff',
     borderWidth: 1,
     borderColor: '#e2e8f0',
-    borderRadius: 12,
+    borderRadius: 10,
     overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 6,
   },
   previewCardImage: {
     width: '100%',
-    height: 160,
+    height: 150,
     backgroundColor: '#f8fafc',
   },
   previewCardInfo: {
-    padding: 14,
+    padding: 12,
   },
   previewCardHeaderRow: {
     flexDirection: 'row',
@@ -1806,19 +1794,19 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   previewSourceText: {
-    fontSize: 15,
+    fontSize: 14,
     fontWeight: '700',
     color: '#0f172a',
   },
   previewIdSub: {
-    fontSize: 13,
+    fontSize: 12,
     fontWeight: '400',
     color: '#64748b',
   },
   previewIdDetailText: {
     fontSize: 12,
     color: '#64748b',
-    marginBottom: 12,
+    marginBottom: 10,
   },
   previewCardFooterRow: {
     flexDirection: 'row',
@@ -1826,7 +1814,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   previewCostText: {
-    fontSize: 13,
+    fontSize: 12,
     fontWeight: '600',
     color: '#334155',
   },
@@ -1834,12 +1822,12 @@ const styles = StyleSheet.create({
     backgroundColor: '#ffffff',
     borderWidth: 1,
     borderColor: '#2563eb',
-    paddingHorizontal: 14,
-    paddingVertical: 6,
+    paddingHorizontal: 12,
+    paddingVertical: 5,
     borderRadius: 6,
   },
   confirmButtonSmallText: {
-    fontSize: 13,
+    fontSize: 12,
     fontWeight: '600',
     color: '#2563eb',
   },
@@ -1853,32 +1841,32 @@ const styles = StyleSheet.create({
   },
   freeBadgeContainer: {
     backgroundColor: '#eab308',
-    paddingHorizontal: 8,
-    paddingVertical: 3,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
     borderRadius: 4,
     alignSelf: 'flex-start',
     justifyContent: 'center',
     alignItems: 'center',
   },
   freeBadgeText: {
-    fontSize: 11,
+    fontSize: 10,
     fontWeight: '700',
     color: '#ffffff',
     textTransform: 'lowercase',
-    lineHeight: 14,
+    lineHeight: 13,
   },
   generatingRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 8,
+    marginBottom: 6,
   },
   generatingText: {
-    fontSize: 12,
+    fontSize: 11,
     color: '#334155',
     fontWeight: '500',
   },
   progressBarBg: {
-    height: 6,
+    height: 5,
     backgroundColor: '#e2e8f0',
     borderRadius: 3,
     overflow: 'hidden',
@@ -1893,87 +1881,79 @@ const styles = StyleSheet.create({
     backgroundColor: '#ffffff',
     borderWidth: 1,
     borderColor: '#e2e8f0',
-    borderRadius: 12,
-    padding: 24,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: '0.03' as any,
-    shadowRadius: 6,
+    borderRadius: 10,
+    padding: 16,
   },
   summaryContentRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     flexWrap: 'wrap',
-    gap: 15,
+    gap: 12,
   },
   summaryPanelTitle: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: '700',
     color: '#0f172a',
-    marginBottom: 4,
+    marginBottom: 2,
   },
   summaryPanelDetails: {
-    fontSize: 14,
+    fontSize: 13,
     color: '#64748b',
     marginBottom: 2,
   },
   summaryPanelTotal: {
-    fontSize: 15,
+    fontSize: 14,
     fontWeight: '700',
     color: '#0f172a',
   },
   summaryConfirmButtonCompact: {
     backgroundColor: '#2563eb',
-    paddingVertical: 12,
-    paddingHorizontal: 24,
+    paddingVertical: 10,
+    paddingHorizontal: 18,
     borderRadius: 8,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#2563eb',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
   },
   summaryConfirmButtonCompactText: {
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: '600',
     color: '#ffffff',
   },
   tierBarContainer: {
-    marginTop: 25,
+    marginTop: 16,
     backgroundColor: '#ffffff',
     borderWidth: 1,
     borderColor: '#e2e8f0',
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 20,
+    borderRadius: 10,
+    padding: 14,
+    marginBottom: 16,
   },
   tierHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: 10,
+    marginBottom: 8,
   },
   tierBadge: {
     backgroundColor: '#f1f5f9',
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: '700',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
+    paddingHorizontal: 6,
+    paddingVertical: 3,
     borderRadius: 6,
     color: '#0f172a',
   },
   tierInfoText: {
-    fontSize: 13,
+    fontSize: 12,
     color: '#64748b',
     flex: 1,
-    marginLeft: 12,
+    marginLeft: 10,
   },
   tierProgressBarBg: {
-    height: 8,
+    height: 6,
     backgroundColor: '#f1f5f9',
-    borderRadius: 4,
+    borderRadius: 3,
     overflow: 'hidden',
   },
   tierProgressBarFill: {
