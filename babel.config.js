@@ -1,13 +1,10 @@
-// babel.config.js
-export default function (api) {
+module.exports = function(api) {
   api.cache(true);
   return {
-    presets: [
-      // Preset padrão do Expo, com suporte ao NativeWind JSX import
-      ["babel-preset-expo", { jsxImportSource: "nativewind" }],
-      
-      // Plugin do NativeWind para Tailwind no React Native
-      "nativewind/babel",
+    presets: ['babel-preset-expo'],
+    plugins: [
+      // Se usares NativeWind v4, inclui:
+      // "nativewind/babel",
     ],
   };
-}
+};
