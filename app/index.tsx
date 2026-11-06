@@ -69,6 +69,7 @@ export default function App() {
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
 
   const [userBalance, setUserBalance] = useState('0.20');
 
@@ -179,8 +180,8 @@ export default function App() {
 
   if (!fontsLoaded || isRestoring) {
     return (
-      <View style={{ flex: 1, backgroundColor: '#ffffff', justifyContent: 'center', alignItems: 'center' }}>
-        <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
+      <View style={{ flex: 1, backgroundColor: '#f8fafc', justifyContent: 'center', alignItems: 'center' }}>
+        <StatusBar barStyle="dark-content" backgroundColor="#f8fafc" />
       </View>
     );
   }
@@ -384,18 +385,6 @@ export default function App() {
             color="#64748b"
           />
         </Pressable>
-
-        {userMenuOpen && (
-          <View style={styles.userDropdownMenu}>
-            <Pressable
-              style={({ hovered }: any) => [styles.dropdownItem, hovered && styles.hoverOpacity]}
-              onPress={handleLogout}
-            >
-              <Ionicons name="log-out-outline" size={16} color="#ef4444" />
-              <Text style={styles.dropdownItemText}>Sair</Text>
-            </Pressable>
-          </View>
-        )}
       </View>
 
       <Pressable style={({ hovered }: any) => [styles.balanceCard, hovered && styles.hoverOpacity]}>
@@ -419,10 +408,24 @@ export default function App() {
             hovered && styles.hoverOpacity,
           ]}
         >
-          <Ionicons name="images-outline" size={18} color="#2563eb" />
+          <View style={styles.menuIconContainer}>
+            <Ionicons name="images-outline" size={18} color="#2563eb" />
+          </View>
           {!isMobile && <Text style={[styles.menuItemText, styles.menuItemTextActive]}>Estoque original</Text>}
         </Pressable>
       </ScrollView>
+
+      {/* Botão Sair fora da seta, fixo na sidebar */}
+      <Pressable
+        style={({ hovered }: any) => [
+          styles.sidebarLogoutButton,
+          hovered && styles.hoverOpacity,
+        ]}
+        onPress={handleLogout}
+      >
+        <Ionicons name="log-out-outline" size={18} color="#ef4444" />
+        {!isMobile && <Text style={styles.sidebarLogoutText}>Sair</Text>}
+      </Pressable>
     </View>
   );
 
@@ -998,10 +1001,17 @@ export default function App() {
               onChangeText={setPassword}
               onFocus={() => setPasswordFocused(true)}
               onBlur={() => setPasswordFocused(false)}
-              secureTextEntry={true}
+              secureTextEntry={!showPassword}
               autoComplete="off"
               selectionColor="#2563eb"
             />
+            <Pressable onPress={() => setShowPassword(!showPassword)} style={{ padding: 4 }}>
+              <Ionicons
+                name={showPassword ? 'eye-outline' : 'eye-off-outline'}
+                size={20}
+                color="#64748b"
+              />
+            </Pressable>
           </View>
 
           <Pressable
@@ -1160,11 +1170,11 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     width: '100%',
     paddingHorizontal: 40,
-    paddingBottom: 80,
+    paddingBottom: 40,
   },
   platformsSectionMobile: {
     paddingHorizontal: 20,
-    paddingBottom: 40,
+    paddingBottom: 20,
   },
   platformsSectionTitle: {
     fontSize: 32,
@@ -1538,35 +1548,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     paddingVertical: 4,
   },
-  userDropdownMenu: {
-    position: 'absolute',
-    top: 45,
-    left: 0,
-    backgroundColor: '#ffffff',
-    borderWidth: 1,
-    borderColor: '#e2e8f0',
-    borderRadius: 8,
-    paddingVertical: 4,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 2,
-    zIndex: 100,
-    minWidth: 120,
-  },
-  dropdownItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-  },
-  dropdownItemText: {
-    fontSize: 14,
-    color: '#ef4444',
-    fontWeight: '600',
-  },
   userAvatar: {
     width: 36,
     height: 36,
@@ -1629,6 +1610,11 @@ const styles = StyleSheet.create({
     marginBottom: 4,
     gap: 12,
   },
+  menuIconContainer: {
+    width: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   menuItemActive: {
     backgroundColor: '#f1f5f9',
   },
@@ -1642,6 +1628,21 @@ const styles = StyleSheet.create({
     color: '#2563eb',
     fontWeight: '600',
   },
+  sidebarLogoutButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    paddingVertical: 12,
+    paddingHorizontal: 10,
+    borderTopWidth: 1,
+    borderTopColor: '#f1f5f9',
+    marginTop: 'auto',
+  },
+  sidebarLogoutText: {
+    fontSize: 14,
+    color: '#ef4444',
+    fontWeight: '600',
+  },
   dashboardMain: {
     flex: 1,
     backgroundColor: '#f8fafc',
@@ -1649,12 +1650,13 @@ const styles = StyleSheet.create({
   dashboardMainContent: {
     paddingHorizontal: 35,
     paddingTop: 35,
-    paddingBottom: 80,
+    paddingBottom: 40,
     width: '100%',
   },
   dashboardMainContentMobile: {
     paddingHorizontal: 16,
     paddingTop: 20,
+    paddingBottom: 20,
   },
   dashboardHeaderArea: {
     marginBottom: 20,
@@ -1708,6 +1710,7 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     justifyContent: 'space-between',
     gap: 12,
+    paddingBottom: 20,
   },
   platformRowItem: {
     width: '24%',
@@ -1950,6 +1953,7 @@ const styles = StyleSheet.create({
     borderColor: '#e2e8f0',
     borderRadius: 12,
     padding: 16,
+    marginBottom: 20,
   },
   tierHeader: {
     flexDirection: 'row',
