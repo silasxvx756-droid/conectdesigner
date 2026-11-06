@@ -1,865 +1,657 @@
-import { useState, useRef } from "react";
+import React, { useState, useEffect, useRef } from 'react';
 import {
-  StyleSheet,
-  Text,
   View,
+  Text,
   TextInput,
   TouchableOpacity,
-  KeyboardAvoidingView,
-  Platform,
+  StyleSheet,
+  Alert,
+  StatusBar,
   ScrollView,
+  useWindowDimensions,
   Animated,
+  Platform,
   Linking,
-  Modal,
-  ActivityIndicator,
-} from "react-native";
-import { LinearGradient } from "expo-linear-gradient";
+} from 'react-native';
 
-const GRAPHIC_DESIGN_ROLES = [
-  { id: "ui_ux", label: "UI/UX Designer", icon: "📱" },
-  { id: "brand", label: "Designer de Marca / Branding", icon: "🎨" },
-  { id: "motion", label: "Motion Designer", icon: "🎬" },
-  { id: "social", label: "Social Media Designer", icon: "📲" },
-  { id: "illustrator", label: "Ilustrador(a) Digital", icon: "✏️" },
-  { id: "3d", label: "Designer 3D", icon: "🧊" },
-  { id: "art_director", label: "Diretor(a) de Arte", icon: "🎭" },
-  { id: "print", label: "Designer Editorial / Gráfico", icon: "📚" },
-];
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { LinearGradient } from 'expo-linear-gradient';
+import { Ionicons } from '@expo/vector-icons';
+import { useFonts } from 'expo-font';
 
-export default function Page() {
-  const [step, setStep] = useState<"name" | "email" | "role" | "instagram" | "summary">("name");
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [selectedRole, setSelectedRole] = useState("");
-  const [hasFollowed, setHasFollowed] = useState(false);
+const STORAGE_KEY = '@cfi_screen_state';
+const PROXY_BASE_URL = 'http://localhost:3000/api';
+
+export default function App() {
+  const [screen, setScreen] = useState('home');
+
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+
+  const [imageUrls, setImageUrls] = useState('');
   const [loading, setLoading] = useState(false);
 
-  // Estado para o Pop-up (Modal) do Instagram
-  const [isModalVisible, setIsModalVisible] = useState(false);
-  const [instaHandle, setInstaHandle] = useState("");
+  const [isRestoring, setIsRestoring] = useState(true);
 
-  const instagramUrl = "https://www.instagram.com/conect_designer1/";
-  const targetInstagramHandle = "@conect_designer1";
+  const { width } = useWindowDimensions();
+  const isMobile = width < 700;
 
-  // Animações
-  const rolesListScale = useRef(new Animated.Value(1)).current;
-  const rolesListRotate = useRef(new Animated.Value(0)).current;
-  const buttonScale = useRef(new Animated.Value(1)).current;
+  const animation = useRef(new Animated.Value(0)).current;
 
-  const handleOpenInstagram = () => {
-    Linking.openURL(instagramUrl);
-  };
+  // =====================================
+  // RECUPERAR DADOS SALVOS
+  // =====================================
 
-  const animateButtonPress = (callback: () => void) => {
-    Animated.sequence([
-      Animated.timing(buttonScale, {
-        toValue: 0.95,
-        duration: 80,
-        useNativeDriver: true,
-      }),
-      Animated.timing(buttonScale, {
-        toValue: 1,
-        duration: 80,
-        useNativeDriver: true,
-      }),
-    ]).start(() => {
-      callback();
-    });
-  };
+  useEffect(() => {
+    const restoreData = async () => {
+      try {
+        let savedData = null;
 
-  const animateRolesList = () => {
-    rolesListScale.setValue(0.95);
-    rolesListRotate.setValue(-1);
+        if (Platform.OS === 'web') {
+          const saved = localStorage.getItem(STORAGE_KEY);
+          savedData = saved ? JSON.parse(saved) : null;
+        } else {
+          const saved = await AsyncStorage.getItem(STORAGE_KEY);
+          savedData = saved ? JSON.parse(saved) : null;
+        }
 
-    Animated.parallel([
-      Animated.spring(rolesListScale, {
-        toValue: 1,
-        friction: 3,
-        tension: 40,
-        useNativeDriver: true,
-      }),
-      Animated.spring(rolesListRotate, {
-        toValue: 0,
-        friction: 3,
-        tension: 40,
-        useNativeDriver: true,
-      }),
-    ]).start();
-  };
+        if (savedData) {
+          if (
+            savedData.screen === 'home' ||
+            savedData.screen === 'login' ||
+            savedData.screen === 'dashboard'
+          ) {
+            setScreen(savedData.screen);
+          }
 
-  const handleNextName = () => {
-    if (name.trim()) {
-      animateButtonPress(() => setStep("email"));
-    }
-  };
-
-  const handleNextEmail = () => {
-    if (email.trim() && email.includes("@")) {
-      animateButtonPress(() => setStep("role"));
-    }
-  };
-
-  const handleNextRole = () => {
-    if (selectedRole) {
-      animateButtonPress(() => setStep("instagram"));
-    }
-  };
-
-  // Função para enviar os dados para o seu e-mail via EmailJS
-  const sendEmailToAdmin = async () => {
-    setLoading(true);
-
-    const payload = {
-      service_id: "service_12t80yc",
-      template_id: "template_wqs07v7", // ID atualizado do template
-      user_id: "nzR9FrEWhw244hjKs",
-      template_params: {
-        user_name: name,
-        user_email: email,
-        user_role: getRoleLabel(selectedRole),
-        user_instagram: instaHandle,
-      },
+          if (typeof savedData.email === 'string') {
+            setEmail(savedData.email);
+          }
+        }
+      } catch (error) {
+        console.log('Erro ao recuperar os dados:', error);
+      } finally {
+        setIsRestoring(false);
+      }
     };
 
-    try {
-      const response = await fetch("https://api.emailjs.com/api/v1.0/email/send", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-      });
+    restoreData();
+  }, []);
 
-      if (response.ok) {
-        setStep("summary");
+  // =====================================
+  // SALVAR DADOS AUTOMATICAMENTE
+  // =====================================
+
+  useEffect(() => {
+    if (isRestoring) return;
+
+    const saveData = async () => {
+      try {
+        const data = JSON.stringify({
+          screen,
+          email,
+        });
+
+        if (Platform.OS === 'web') {
+          localStorage.setItem(STORAGE_KEY, data);
+        } else {
+          await AsyncStorage.setItem(STORAGE_KEY, data);
+        }
+      } catch (error) {
+        console.log('Erro ao salvar os dados:', error);
+      }
+    };
+
+    saveData();
+  }, [screen, email, isRestoring]);
+
+  // =====================================
+  // ANIMAÇÃO AUTOMÁTICA
+  // =====================================
+
+  useEffect(() => {
+    const animationLoop = Animated.loop(
+      Animated.sequence([
+        Animated.timing(animation, {
+          toValue: 1,
+          duration: 3500,
+          useNativeDriver: true,
+        }),
+        Animated.timing(animation, {
+          toValue: 0,
+          duration: 3500,
+          useNativeDriver: true,
+        }),
+      ])
+    );
+
+    animationLoop.start();
+
+    return () => animationLoop.stop();
+  }, [animation]);
+
+  const [fontsLoaded] = useFonts({
+    ...Ionicons.font,
+  });
+
+  if (!fontsLoaded || isRestoring) return null;
+
+  // =====================================
+  // LOGIN
+  // =====================================
+
+  const handleLogin = () => {
+    if (!email.trim() || !password.trim()) {
+      Alert.alert('Atenção', 'Preencha seu usuário e senha.');
+      return;
+    }
+
+    if (email.trim() === 'conta' && password.trim() === '123456') {
+      setScreen('dashboard');
+    } else {
+      Alert.alert('Erro de Acesso', 'Usuário ou senha incorretos.');
+    }
+  };
+
+  // =====================================
+  // LOGOUT / DESLOGAR DA CONTA
+  // =====================================
+
+  const handleLogout = async () => {
+    try {
+      setEmail('');
+      setPassword('');
+      setImageUrls('');
+      setScreen('home');
+
+      if (Platform.OS === 'web') {
+        localStorage.removeItem(STORAGE_KEY);
       } else {
-        const errorText = await response.text();
-        console.warn("Erro ao enviar pelo EmailJS:", errorText);
-        setStep("summary");
+        await AsyncStorage.removeItem(STORAGE_KEY);
       }
     } catch (error) {
-      console.error("Erro ao enviar e-mail:", error);
-      setStep("summary");
+      console.log('Erro ao efetuar logout:', error);
+    }
+  };
+
+  // =====================================
+  // EXECUTAR DOWNLOAD DIRETO
+  // =====================================
+
+  const handleDirectDownload = async () => {
+    if (!imageUrls.trim()) {
+      Alert.alert('Atenção', 'Insira pelo menos uma URL de imagem.');
+      return;
+    }
+
+    const urlsArray = imageUrls
+      .split('\n')
+      .map((url) => url.trim())
+      .filter(Boolean);
+
+    try {
+      setLoading(true);
+      const targetUrl = urlsArray[0];
+
+      console.log('\n========================================');
+      console.log('🔍 [INÍCIO DO PROCESSAMENTO DIRETO]');
+      console.log('🔗 URL Alvo:', targetUrl);
+
+      // 1. Obter informações/detalhes do arquivo
+      const encodedUrl = encodeURIComponent(targetUrl);
+      const infoEndpoint = `${PROXY_BASE_URL}/stockinfo?url=${encodedUrl}`;
+
+      const infoResponse = await fetch(infoEndpoint, {
+        method: 'GET',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+      });
+
+      const infoData = await infoResponse.json();
+
+      if (!infoResponse.ok || !infoData.success) {
+        const msg = infoData.message || 'Falha ao buscar informações da imagem.';
+        if (
+          msg.toLowerCase().includes('point') ||
+          msg.toLowerCase().includes('balance') ||
+          msg.toLowerCase().includes('ponto') ||
+          msg.toLowerCase().includes('saldo')
+        ) {
+          Alert.alert('Pontos Insuficientes', 'Você não tem pontos suficientes para realizar este download.');
+        } else {
+          Alert.alert('Aviso', msg);
+        }
+        return;
+      }
+
+      const source = infoData.data?.source || 'freepik';
+      const fileId = infoData.data?.id;
+
+      if (!fileId) {
+        Alert.alert('Erro', 'Não foi possível identificar o ID do arquivo.');
+        return;
+      }
+
+      // 2. Criar a ordem de download diretamente
+      const orderEndpoint = `${PROXY_BASE_URL}/stockorder/${source}/${fileId}`;
+      console.log('🔗 Endpoint Order:', orderEndpoint);
+
+      const orderResponse = await fetch(orderEndpoint, {
+        method: 'GET',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+      });
+
+      const orderData = await orderResponse.json();
+
+      if (!orderResponse.ok || !orderData.success || !orderData.task_id) {
+        const orderMsg = orderData.message || 'Falha ao criar ordem de download.';
+        if (
+          orderMsg.toLowerCase().includes('point') ||
+          orderMsg.toLowerCase().includes('balance') ||
+          orderMsg.toLowerCase().includes('ponto') ||
+          orderMsg.toLowerCase().includes('saldo')
+        ) {
+          Alert.alert('Pontos Insuficientes', 'Você não tem pontos suficientes para realizar este download.');
+        } else {
+          Alert.alert('Erro', orderMsg);
+        }
+        return;
+      }
+
+      const taskId = orderData.task_id;
+      console.log('🔑 Task ID obtido:', taskId);
+
+      // 3. Verificação contínua do status do download
+      let isReady = false;
+      let finalDownloadUrl = '';
+      let attempts = 0;
+      const maxAttempts = 10;
+
+      while (!isReady && attempts < maxAttempts) {
+        attempts++;
+        console.log(`⏳ [Status Check] Tentativa ${attempts} de ${maxAttempts}...`);
+
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+
+        const statusEndpoint = `${PROXY_BASE_URL}/order/${taskId}/status?responsetype=any`;
+        const statusResponse = await fetch(statusEndpoint, {
+          method: 'GET',
+          headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+          },
+        });
+
+        const statusData = await statusResponse.json();
+
+        if (statusData.status === 'ready' && statusData.available_download_links?.length > 0) {
+          isReady = true;
+          finalDownloadUrl = statusData.available_download_links[0].url;
+        }
+      }
+
+      if (!isReady || !finalDownloadUrl) {
+        Alert.alert('Aviso', 'O tempo limite para gerar o link de download esgotou-se.');
+        return;
+      }
+
+      console.log('🎉 [PRONTO] Abrindo link de download na mesma aba:', finalDownloadUrl);
+
+      if (Platform.OS === 'web') {
+        window.location.href = finalDownloadUrl;
+      } else {
+        const supported = await Linking.canOpenURL(finalDownloadUrl);
+        if (supported) {
+          await Linking.openURL(finalDownloadUrl);
+        } else {
+          Alert.alert('Erro', 'Não é possível abrir este link no dispositivo.');
+        }
+      }
+    } catch (error: any) {
+      console.error('❌ [ERRO NO PROCESSO]:', error.message || error);
+      Alert.alert('Erro', 'Não foi possível concluir a operação.');
     } finally {
       setLoading(false);
+      console.log('========================================\n');
     }
   };
 
-  const handleNextInstagram = () => {
-    if (hasFollowed && instaHandle.trim()) {
-      animateButtonPress(() => {
-        sendEmailToAdmin();
-      });
-    }
-  };
+  // =====================================
+  // TELA DE BAIXAR (DASHBOARD)
+  // =====================================
 
-  const handleCheckboxClick = () => {
-    if (hasFollowed) {
-      setHasFollowed(false);
-      setInstaHandle("");
-    } else {
-      setIsModalVisible(true);
-    }
-  };
+  if (screen === 'dashboard') {
+    return (
+      <View style={styles.dashboardScreen}>
+        <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
 
-  const handleConfirmInstaHandle = () => {
-    if (instaHandle.trim()) {
-      setHasFollowed(true);
-      setIsModalVisible(false);
-    }
-  };
+        <TouchableOpacity style={styles.topLogoutButton} onPress={handleLogout} activeOpacity={0.7}>
+          <Ionicons name="log-out-outline" size={20} color="#ef3340" />
+          <Text style={styles.topLogoutText}>Sair</Text>
+        </TouchableOpacity>
 
-  const handleReset = () => {
-    animateButtonPress(() => {
-      setStep("name");
-      setName("");
-      setEmail("");
-      setSelectedRole("");
-      setHasFollowed(false);
-      setInstaHandle("");
-    });
-  };
+        <ScrollView
+          style={styles.dashboardMain}
+          contentContainerStyle={styles.dashboardMainContent}
+          showsVerticalScrollIndicator={true}
+        >
+          <TextInput
+            style={styles.urlInput}
+            multiline
+            value={imageUrls}
+            onChangeText={setImageUrls}
+            placeholder=""
+            textAlignVertical="top"
+          />
 
-  const getRoleLabel = (id: string) => {
-    return GRAPHIC_DESIGN_ROLES.find((r) => r.id === id)?.label || id;
-  };
+          <TouchableOpacity
+            style={styles.getFilesButton}
+            activeOpacity={0.75}
+            disabled={loading}
+            onPress={handleDirectDownload}
+          >
+            <Text style={styles.getFilesButtonText}>Baixar</Text>
+          </TouchableOpacity>
+        </ScrollView>
+      </View>
+    );
+  }
 
-  return (
-    <LinearGradient colors={["#0f172a", "#1e293b"]} style={styles.container}>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-        style={styles.keyboardView}
-      >
-        <View style={styles.card}>
-          {/* ETAPA 1: NOME */}
-          {step === "name" && (
-            <>
-              <View style={styles.header}>
-                <Text style={styles.badge}>PASSO 1 DE 4</Text>
-                <Text style={styles.title}>Qual é o seu nome?</Text>
-                <Text style={styles.subtitle}>
-                  Digite seu nome para começar seu perfil de designer.
-                </Text>
-              </View>
+  // =====================================
+  // TELA INICIAL
+  // =====================================
 
-              <View style={styles.inputContainer}>
-                <TextInput
-                  style={styles.input}
-                  placeholder="Seu nome aqui..."
-                  placeholderTextColor="#64748b"
-                  value={name}
-                  onChangeText={setName}
-                  autoCapitalize="words"
-                />
-              </View>
+  if (screen === 'home') {
+    return (
+      <View style={styles.homeContainer}>
+        <StatusBar barStyle="dark-content" />
 
-              <Animated.View style={{ transform: [{ scale: buttonScale }] }}>
-                <TouchableOpacity
-                  activeOpacity={0.9}
-                  style={[styles.button, !name.trim() && styles.buttonDisabled]}
-                  onPress={handleNextName}
-                  disabled={!name.trim()}
-                >
-                  <LinearGradient
-                    colors={
-                      name.trim() ? ["#6366f1", "#4f46e5"] : ["#334155", "#334155"]
-                    }
-                    start={{ x: 0, y: 0 }}
-                    end={{ x: 1, y: 0 }}
-                    style={styles.gradientButton}
-                  >
-                    <Text style={styles.buttonText}>Avançar →</Text>
-                  </LinearGradient>
-                </TouchableOpacity>
-              </Animated.View>
-            </>
-          )}
-
-          {/* ETAPA 2: E-MAIL */}
-          {step === "email" && (
-            <>
-              <View style={styles.header}>
-                <Text style={styles.badge}>PASSO 2 DE 4</Text>
-                <Text style={styles.title}>Qual é o seu e-mail?</Text>
-                <Text style={styles.subtitle}>
-                  Utilizaremos para enviar atualizações do seu cadastro.
-                </Text>
-              </View>
-
-              <View style={styles.inputContainer}>
-                <TextInput
-                  style={styles.input}
-                  placeholder="seu.email@exemplo.com"
-                  placeholderTextColor="#64748b"
-                  value={email}
-                  onChangeText={setEmail}
-                  keyboardType="email-address"
-                  autoCapitalize="none"
-                />
-              </View>
-
-              <View style={styles.buttonGroup}>
-                <TouchableOpacity
-                  activeOpacity={0.8}
-                  style={styles.backButton}
-                  onPress={() => setStep("name")}
-                >
-                  <Text style={styles.backButtonText}>Voltar</Text>
-                </TouchableOpacity>
-
-                <Animated.View style={[styles.flexButton, { transform: [{ scale: buttonScale }] }]}>
-                  <TouchableOpacity
-                    activeOpacity={0.9}
-                    style={[
-                      styles.button,
-                      (!email.trim() || !email.includes("@")) && styles.buttonDisabled,
-                    ]}
-                    onPress={handleNextEmail}
-                    disabled={!email.trim() || !email.includes("@")}
-                  >
-                    <LinearGradient
-                      colors={
-                        email.trim() && email.includes("@")
-                          ? ["#6366f1", "#4f46e5"]
-                          : ["#334155", "#334155"]
-                      }
-                      start={{ x: 0, y: 0 }}
-                      end={{ x: 1, y: 0 }}
-                      style={styles.gradientButton}
-                    >
-                      <Text style={styles.buttonText}>Avançar →</Text>
-                    </LinearGradient>
-                  </TouchableOpacity>
-                </Animated.View>
-              </View>
-            </>
-          )}
-
-          {/* ETAPA 3: ESCOLHER CARGO */}
-          {step === "role" && (
-            <>
-              <View style={styles.header}>
-                <Text style={styles.badge}>PASSO 3 DE 4</Text>
-                <Text style={styles.title}>Selecione sua especialidade</Text>
-                <Text style={styles.subtitle}>
-                  Escolha o cargo que melhor define sua atuação em Design Gráfico.
-                </Text>
-              </View>
-
-              <Animated.View
-                style={[
-                  styles.rolesListContainer,
-                  {
-                    transform: [
-                      { scale: rolesListScale },
-                      {
-                        rotate: rolesListRotate.interpolate({
-                          inputRange: [-1, 0, 1],
-                          outputRange: ["-1deg", "0deg", "1deg"],
-                        }),
-                      },
-                    ],
-                  },
-                ]}
-              >
-                <ScrollView
-                  style={styles.rolesScrollView}
-                  showsVerticalScrollIndicator={false}
-                >
-                  {GRAPHIC_DESIGN_ROLES.map((role) => {
-                    const isSelected = selectedRole === role.id;
-                    return (
-                      <TouchableOpacity
-                        key={role.id}
-                        activeOpacity={0.7}
-                        style={[
-                          styles.roleOption,
-                          isSelected && styles.roleOptionSelected,
-                        ]}
-                        onPress={() => {
-                          setSelectedRole(role.id);
-                          animateRolesList();
-                        }}
-                      >
-                        <Text style={styles.roleIcon}>{role.icon}</Text>
-                        <Text
-                          style={[
-                            styles.roleText,
-                            isSelected && styles.roleTextSelected,
-                          ]}
-                        >
-                          {role.label}
-                        </Text>
-                      </TouchableOpacity>
-                    );
-                  })}
-                </ScrollView>
-              </Animated.View>
-
-              <View style={styles.buttonGroup}>
-                <TouchableOpacity
-                  activeOpacity={0.8}
-                  style={styles.backButton}
-                  onPress={() => setStep("email")}
-                >
-                  <Text style={styles.backButtonText}>Voltar</Text>
-                </TouchableOpacity>
-
-                <Animated.View style={[styles.flexButton, { transform: [{ scale: buttonScale }] }]}>
-                  <TouchableOpacity
-                    activeOpacity={0.9}
-                    style={[
-                      styles.button,
-                      !selectedRole && styles.buttonDisabled,
-                    ]}
-                    onPress={handleNextRole}
-                    disabled={!selectedRole}
-                  >
-                    <LinearGradient
-                      colors={
-                        selectedRole
-                          ? ["#6366f1", "#4f46e5"]
-                          : ["#334155", "#334155"]
-                      }
-                      start={{ x: 0, y: 0 }}
-                      end={{ x: 1, y: 0 }}
-                      style={styles.gradientButton}
-                    >
-                      <Text style={styles.buttonText}>Avançar →</Text>
-                    </LinearGradient>
-                  </TouchableOpacity>
-                </Animated.View>
-              </View>
-            </>
-          )}
-
-          {/* ETAPA 4: INSTAGRAM */}
-          {step === "instagram" && (
-            <>
-              <View style={styles.header}>
-                <Text style={styles.badge}>PASSO 4 DE 4</Text>
-                <Text style={styles.title}>Siga no Instagram</Text>
-                <Text style={styles.subtitle}>
-                  Siga o perfil <Text style={styles.highlightText}>{targetInstagramHandle}</Text> e confirme abaixo para continuar.
-                </Text>
-              </View>
-
-              <View style={styles.instagramContent}>
-                <TouchableOpacity
-                  style={styles.instaButton}
-                  activeOpacity={0.8}
-                  onPress={handleOpenInstagram}
-                >
-                  <Text style={styles.instaButtonText}>📸 Abrir Instagram</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                  style={styles.checkboxContainer}
-                  activeOpacity={0.8}
-                  onPress={handleCheckboxClick}
-                >
-                  <View style={[styles.checkbox, hasFollowed && styles.checkboxChecked]}>
-                    {hasFollowed && <Text style={styles.checkmark}>✓</Text>}
-                  </View>
-                  <Text style={styles.checkboxLabel}>
-                    {hasFollowed
-                      ? `Seguindo como: ${instaHandle}`
-                      : `Já segui ${targetInstagramHandle}`}
-                  </Text>
-                </TouchableOpacity>
-              </View>
-
-              <View style={styles.buttonGroup}>
-                <TouchableOpacity
-                  activeOpacity={0.8}
-                  style={styles.backButton}
-                  onPress={() => setStep("role")}
-                >
-                  <Text style={styles.backButtonText}>Voltar</Text>
-                </TouchableOpacity>
-
-                <Animated.View style={[styles.flexButton, { transform: [{ scale: buttonScale }] }]}>
-                  <TouchableOpacity
-                    activeOpacity={0.9}
-                    style={[
-                      styles.button,
-                      (!hasFollowed || loading) && styles.buttonDisabled,
-                    ]}
-                    onPress={handleNextInstagram}
-                    disabled={!hasFollowed || loading}
-                  >
-                    <LinearGradient
-                      colors={
-                        hasFollowed
-                          ? ["#6366f1", "#4f46e5"]
-                          : ["#334155", "#334155"]
-                      }
-                      start={{ x: 0, y: 0 }}
-                      end={{ x: 1, y: 0 }}
-                      style={styles.gradientButton}
-                    >
-                      {loading ? (
-                        <ActivityIndicator color="#fff" />
-                      ) : (
-                        <Text style={styles.buttonText}>Concluir →</Text>
-                      )}
-                    </LinearGradient>
-                  </TouchableOpacity>
-                </Animated.View>
-              </View>
-            </>
-          )}
-
-          {/* RESUMO FINAL */}
-          {step === "summary" && (
-            <>
-              <View style={styles.header}>
-                <Text style={styles.badge}>TUDO PRONTO!</Text>
-                <Text style={styles.title}>Parabéns, {name}! 🎉</Text>
-                <Text style={styles.subtitle}>
-                  Seu cadastro como <Text style={styles.highlightText}>{getRoleLabel(selectedRole)}</Text> foi finalizado com o Instagram <Text style={styles.highlightText}>{instaHandle}</Text>!
-                </Text>
-              </View>
-
-              <View style={styles.noticeCard}>
-                <Text style={styles.noticeIcon}>📩</Text>
-                <Text style={styles.noticeText}>
-                  Entrarei em contato pelo e-mail para conversarmos melhor sobre o trabalho. 
-                </Text>
-              </View>
-
-              <Animated.View style={{ transform: [{ scale: buttonScale }] }}>
-                <TouchableOpacity
-                  activeOpacity={0.9}
-                  style={styles.button}
-                  onPress={handleReset}
-                >
-                  <View style={styles.secondaryButton}>
-                    <Text style={styles.secondaryButtonText}>Recomeçar</Text>
-                  </View>
-                </TouchableOpacity>
-              </Animated.View>
-            </>
-          )}
+        <View style={styles.navbar}>
+          <TouchableOpacity
+            style={styles.logoArea}
+            onPress={() => setScreen('home')}
+          />
         </View>
 
-        {/* POP-UP (MODAL) PARA VALIDAÇÃO DO INSTAGRAM */}
-        <Modal
-          visible={isModalVisible}
-          transparent
-          animationType="fade"
-          onRequestClose={() => setIsModalVisible(false)}
-        >
-          <View style={styles.modalOverlay}>
-            <View style={styles.modalContent}>
-              <Text style={styles.modalBadge}>VALIDAÇÃO</Text>
-              <Text style={styles.modalTitle}>Qual o seu @usuario?</Text>
-              <Text style={styles.modalSubtitle}>
-                Informe o seu nome de usuário no Instagram que usou para seguir {targetInstagramHandle}:
-              </Text>
+        <View style={[styles.hero, isMobile && styles.heroMobile]}>
+          <View style={[styles.heroText, isMobile && styles.heroTextMobile]}>
+            <Text style={[styles.heroTitle, isMobile && styles.heroTitleMobile]}>
+              MAGNIFIC, ENVATO E DESIGNI
+            </Text>
 
-              <TextInput
-                style={styles.modalInput}
-                placeholder="@seu.usuario"
-                placeholderTextColor="#64748b"
-                value={instaHandle}
-                onChangeText={setInstaHandle}
-                autoCapitalize="none"
-              />
-
-              <View style={styles.modalButtonGroup}>
-                <TouchableOpacity
-                  style={styles.modalCancelButton}
-                  onPress={() => {
-                    setIsModalVisible(false);
-                    setInstaHandle("");
-                  }}
-                >
-                  <Text style={styles.modalCancelButtonText}>Cancelar</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                  style={[
-                    styles.modalConfirmButton,
-                    !instaHandle.trim() && styles.buttonDisabled,
-                  ]}
-                  disabled={!instaHandle.trim()}
-                  onPress={handleConfirmInstaHandle}
-                >
-                  <Text style={styles.modalConfirmButtonText}>Confirmar</Text>
-                </TouchableOpacity>
-              </View>
-            </View>
+            <TouchableOpacity
+              style={styles.startButton}
+              onPress={() => setScreen('login')}
+              activeOpacity={0.8}
+            >
+              <Text style={styles.startButtonText}>ENTRAR</Text>
+            </TouchableOpacity>
           </View>
-        </Modal>
-      </KeyboardAvoidingView>
+        </View>
+      </View>
+    );
+  }
+
+  // =====================================
+  // TELA DE LOGIN
+  // =====================================
+
+  return (
+    <LinearGradient
+      colors={['#ffffff', '#f8fafc', '#f1f5f9']}
+      locations={[0, 0.55, 1]}
+      style={styles.loginContainer}
+    >
+      <StatusBar barStyle="dark-content" />
+
+      <View style={styles.loginContent}>
+        <View style={styles.form}>
+          <View style={styles.inputContainer}>
+            <TextInput
+              style={styles.input}
+              placeholder=""
+              placeholderTextColor="#94a3b8"
+              value={email}
+              onChangeText={setEmail}
+              keyboardType="email-address"
+              autoCapitalize="none"
+              autoCorrect={false}
+              autoComplete="off"
+              selectionColor="#2563eb"
+            />
+          </View>
+
+          <View style={styles.inputContainer}>
+            <TextInput
+              style={styles.input}
+              placeholder=""
+              placeholderTextColor="#94a3b8"
+              value={password}
+              onChangeText={setPassword}
+              secureTextEntry={true}
+              autoComplete="off"
+              selectionColor="#2563eb"
+            />
+          </View>
+
+          <TouchableOpacity
+            style={styles.loginButton}
+            onPress={handleLogin}
+            activeOpacity={1}
+          >
+            <Text style={styles.loginButtonText}>ENTRAR</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
     </LinearGradient>
   );
 }
 
+// =====================================
+// ESTILOS
+// =====================================
+
 const styles = StyleSheet.create({
-  container: {
+  homeContainer: {
     flex: 1,
+    height: '100%',
+    backgroundColor: '#ffffff',
   },
-  keyboardView: {
+  navbar: {
+    height: 72,
+    width: '100%',
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 24,
+    backgroundColor: '#ffffff',
+    justifyContent: 'space-between',
+  },
+  logoArea: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  hero: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    padding: 24,
+    width: '100%',
+    maxWidth: 1250,
+    alignSelf: 'center',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 45,
+    paddingVertical: 20,
   },
-  card: {
-    width: "100%",
-    maxWidth: 440,
-    maxHeight: "85%",
-    backgroundColor: "rgba(30, 41, 59, 0.7)",
-    borderRadius: 24,
-    padding: 28,
-    borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.1)",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 20 },
-    shadowOpacity: 0.3,
-    shadowRadius: 25,
-    elevation: 8,
-    overflow: "hidden",
+  heroText: {
+    width: '100%',
+    maxWidth: 800,
+    zIndex: 5,
+    justifyContent: 'center',
+    alignItems: 'center',
+    textAlign: 'center',
   },
-  header: {
-    marginBottom: 20,
+  heroTitle: {
+    fontSize: 42,
+    lineHeight: 52,
+    fontWeight: '700',
+    color: '#000000',
+    letterSpacing: -1,
+    textAlign: 'center',
   },
-  badge: {
-    color: "#818cf8",
-    fontSize: 12,
-    fontWeight: "700",
+  startButton: {
+    height: 52,
+    minWidth: 190,
+    paddingHorizontal: 25,
+    backgroundColor: '#000000',
+    borderRadius: 5,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 30,
+  },
+  startButtonText: {
+    color: '#ffffff',
+    fontSize: 18,
+    fontWeight: '700',
     letterSpacing: 1.5,
-    marginBottom: 8,
   },
-  title: {
+  heroMobile: {
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 25,
+    paddingVertical: 20,
+  },
+  heroTextMobile: {
+    width: '100%',
+    alignItems: 'center',
+  },
+  heroTitleMobile: {
     fontSize: 28,
-    fontWeight: "800",
-    color: "#f8fafc",
-    marginBottom: 8,
-    letterSpacing: -0.5,
+    lineHeight: 36,
+    textAlign: 'center',
   },
-  subtitle: {
-    fontSize: 15,
-    color: "#94a3b8",
-    lineHeight: 22,
+  loginContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-  highlightText: {
-    color: "#818cf8",
-    fontWeight: "700",
+  loginContent: {
+    width: '100%',
+    maxWidth: 420,
+    paddingHorizontal: 28,
+    alignItems: 'center',
+  },
+  form: {
+    width: '100%',
+    maxWidth: 350,
   },
   inputContainer: {
-    marginBottom: 24,
+    width: '100%',
+    height: 62,
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderWidth: 1.5,
+    borderColor: '#cbd5e1',
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    marginBottom: 18,
+    backgroundColor: '#ffffff',
   },
   input: {
-    height: 56,
-    backgroundColor: "#0f172a",
-    borderRadius: 14,
-    paddingHorizontal: 20,
-    fontSize: 16,
-    color: "#f8fafc",
-    borderWidth: 1,
-    borderColor: "#334155",
-  },
-  rolesListContainer: {
-    maxHeight: 280,
-    marginBottom: 20,
-  },
-  rolesScrollView: {
     flex: 1,
-  },
-  roleOption: {
-    flexDirection: "row",
-    alignItems: "center",
-    padding: 14,
-    backgroundColor: "#0f172a",
-    borderRadius: 14,
-    borderWidth: 1,
-    borderColor: "#334155",
-    marginBottom: 10,
-  },
-  roleOptionSelected: {
-    borderColor: "#6366f1",
-    backgroundColor: "rgba(99, 102, 241, 0.15)",
-  },
-  roleIcon: {
-    fontSize: 20,
-    marginRight: 12,
-  },
-  roleText: {
-    fontSize: 15,
-    color: "#94a3b8",
-    fontWeight: "500",
-  },
-  roleTextSelected: {
-    color: "#f8fafc",
-    fontWeight: "700",
-  },
-  instagramContent: {
-    marginBottom: 24,
-    gap: 16,
-  },
-  instaButton: {
-    height: 56,
-    backgroundColor: "#E1306C",
-    borderRadius: 14,
-    justifyContent: "center",
-    alignItems: "center",
-    shadowColor: "#E1306C",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 4,
-  },
-  instaButtonText: {
-    color: "#fff",
+    height: '100%',
+    paddingHorizontal: 8,
+    color: '#0f172a',
     fontSize: 16,
-    fontWeight: "700",
+    letterSpacing: 0.5,
+    backgroundColor: 'transparent',
+    outlineStyle: 'none' as any,
   },
-  checkboxContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#0f172a",
-    padding: 16,
-    borderRadius: 14,
-    borderWidth: 1,
-    borderColor: "#334155",
-    gap: 12,
+  loginButton: {
+    width: '100%',
+    height: 48,
+    marginTop: 12,
+    borderRadius: 8,
+    backgroundColor: '#000000',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-  checkbox: {
-    width: 24,
-    height: 24,
-    borderRadius: 6,
-    borderWidth: 2,
-    borderColor: "#64748b",
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "#1e293b",
-  },
-  checkboxChecked: {
-    backgroundColor: "#6366f1",
-    borderColor: "#6366f1",
-  },
-  checkmark: {
-    color: "#fff",
-    fontSize: 14,
-    fontWeight: "bold",
-  },
-  checkboxLabel: {
-    color: "#f8fafc",
-    fontSize: 15,
-    fontWeight: "500",
-    flex: 1,
-  },
-  noticeCard: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "rgba(15, 23, 42, 0.8)",
-    padding: 16,
-    borderRadius: 14,
-    borderWidth: 1,
-    borderColor: "#334155",
-    marginBottom: 24,
-    gap: 12,
-  },
-  noticeIcon: {
-    fontSize: 24,
-  },
-  noticeText: {
-    flex: 1,
-    color: "#cbd5e1",
-    fontSize: 14,
-    lineHeight: 20,
-  },
-  buttonGroup: {
-    flexDirection: "row",
-    gap: 12,
-  },
-  flexButton: {
-    flex: 1,
-  },
-  backButton: {
-    height: 56,
-    paddingHorizontal: 20,
-    backgroundColor: "#334155",
-    borderRadius: 14,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  backButtonText: {
-    color: "#f8fafc",
-    fontSize: 16,
-    fontWeight: "600",
-  },
-  button: {
-    borderRadius: 14,
-    overflow: "hidden",
-  },
-  buttonDisabled: {
-    opacity: 0.6,
-  },
-  gradientButton: {
-    height: 56,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  buttonText: {
-    color: "#ffffff",
-    fontSize: 16,
-    fontWeight: "600",
-  },
-  secondaryButton: {
-    height: 56,
-    backgroundColor: "#334155",
-    borderRadius: 14,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  secondaryButtonText: {
-    color: "#f8fafc",
-    fontSize: 16,
-    fontWeight: "600",
-  },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: "rgba(0, 0, 0, 0.75)",
-    justifyContent: "center",
-    alignItems: "center",
-    padding: 24,
-  },
-  modalContent: {
-    width: "100%",
-    maxWidth: 380,
-    backgroundColor: "#1e293b",
-    borderRadius: 20,
-    padding: 24,
-    borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.1)",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.5,
-    shadowRadius: 20,
-    elevation: 10,
-  },
-  modalBadge: {
-    color: "#818cf8",
-    fontSize: 11,
-    fontWeight: "700",
+  loginButtonText: {
+    color: '#ffffff',
+    fontSize: 13,
+    fontWeight: '600',
     letterSpacing: 1.5,
-    marginBottom: 6,
   },
-  modalTitle: {
-    fontSize: 22,
-    fontWeight: "800",
-    color: "#f8fafc",
-    marginBottom: 6,
+  dashboardScreen: {
+    flex: 1,
+    backgroundColor: '#ffffff',
+    minHeight: '100%',
+    position: 'relative',
   },
-  modalSubtitle: {
-    fontSize: 14,
-    color: "#94a3b8",
-    lineHeight: 20,
-    marginBottom: 18,
+  dashboardMain: {
+    flex: 1,
+    backgroundColor: '#ffffff',
   },
-  modalInput: {
-    height: 52,
-    backgroundColor: "#0f172a",
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    fontSize: 15,
-    color: "#f8fafc",
+  dashboardMainContent: {
+    paddingHorizontal: 25,
+    paddingTop: 80,
+    paddingBottom: 80,
+    maxWidth: 800,
+    alignSelf: 'center',
+    width: '100%',
+  },
+  topLogoutButton: {
+    position: 'absolute',
+    top: 25,
+    right: 25,
+    zIndex: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 6,
+    backgroundColor: '#f8fafc',
     borderWidth: 1,
-    borderColor: "#334155",
-    marginBottom: 20,
+    borderColor: '#e2e8f0',
   },
-  modalButtonGroup: {
-    flexDirection: "row",
-    gap: 12,
+  topLogoutText: {
+    fontSize: 14,
+    color: '#ef3340',
+    fontWeight: '600',
   },
-  modalCancelButton: {
-    flex: 1,
-    height: 48,
-    backgroundColor: "#334155",
-    borderRadius: 12,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  modalCancelButtonText: {
-    color: "#f8fafc",
+  urlInput: {
+    width: '100%',
+    height: 318,
+    borderWidth: 1.5,
+    borderColor: '#000000',
+    borderStyle: 'solid',
+    borderRadius: 0, // Cantos retos (sem arredondamento)
+    backgroundColor: '#ffffff',
+    padding: 15,
     fontSize: 15,
-    fontWeight: "600",
+    color: '#1e293b',
+    outlineStyle: 'none' as any,
   },
-  modalConfirmButton: {
-    flex: 1,
-    height: 48,
-    backgroundColor: "#6366f1",
-    borderRadius: 12,
-    justifyContent: "center",
-    alignItems: "center",
+  getFilesButton: {
+    minHeight: 60,
+    paddingHorizontal: 32,
+    paddingVertical: 12,
+    backgroundColor: '#000000',
+    alignSelf: 'center',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 20,
+    marginBottom: 75,
+    borderRadius: 0, // Cantos retos no botão também para manter o estilo
   },
-  modalConfirmButtonText: {
-    color: "#ffffff",
-    fontSize: 15,
-    fontWeight: "600",
+  getFilesButtonText: {
+    fontSize: 20,
+    color: '#ffffff',
+    fontWeight: '600',
   },
 });

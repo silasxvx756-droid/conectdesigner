@@ -1,594 +1,723 @@
-// server.js
-import express from "express";
-import mongoose from "mongoose";
-import dotenv from "dotenv";
-import cors from "cors";
-import multer from "multer";
-import { v2 as cloudinary } from "cloudinary";
-import streamifier from "streamifier";
-import fetch from "node-fetch";
-import http from "http";
-import { Server } from "socket.io";
 
-dotenv.config();
+import 'dotenv/config';
+
+import express from 'express';
+import mongoose from 'mongoose';
+import cors from 'cors';
+import { v2 as cloudinary } from 'cloudinary';
+import nodemailer from 'nodemailer';
+import jwt from 'jsonwebtoken';
+
+// ==========================================
+// CONFIGURAÇÕES GERAIS
+// ==========================================
+
 const app = express();
-const server = http.createServer(app);
+const PORT = process.env.PORT || 3000;
 
-// ================= SOCKET.IO =================
-const io = new Server(server, {
-  cors: {
-    origin: "*",
-    methods: ["GET", "POST"],
-  },
-});
+const NEHTW_URL = (
+  process.env.NEHTW_API_URL || 'https://nehtw.com/api'
+).replace(/\/+$/, '');
 
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: '20mb' }));
+app.use(express.urlencoded({ extended: true }));
 
-/* ================= CLOUDINARY ================= */
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
-});
+// ==========================================
+// MODELO MONGODB
+// ==========================================
 
-/* ================= MULTER ================= */
-const storage = multer.memoryStorage();
-const upload = multer({ storage });
+const orderSchema = new mongoose.Schema(
+  {
+    taskId: { type: String, required: true, unique: true },
+    site: String,
+    fileId: String,
+    sourceUrl: String,
+    status: { type: String, default: 'queued' },
+    response: mongoose.Schema.Types.Mixed,
+    downloadLinks: [mongoose.Schema.Types.Mixed],
+  },
+  { timestamps: true }
+);
 
-/* ================= MONGODB ================= */
-if (!process.env.MONGO_URI) {
-  console.error("❌ MONGO_URI não definido");
-  process.exit(1);
+const Order =
+  mongoose.models.Order ||
+  mongoose.model('Order', orderSchema);
+
+// ==========================================
+// CONEXÃO MONGODB
+// ==========================================
+
+async function connectMongoDB() {
+  if (!process.env.MONGO_URI) {
+    console.log('MONGO_URI não configurada.');
+    return;
+  }
+
+  try {
+    await mongoose.connect(process.env.MONGO_URI);
+    console.log('MongoDB conectado com sucesso!');
+  } catch (error) {
+    console.error('Erro MongoDB:', error.message);
+  }
 }
 
-mongoose
-  .connect(process.env.MONGO_URI)
-  .then(() => console.log("🍃 MongoDB conectado"))
-  .catch((err) => console.log("❌ Mongo erro:", err));
+// ==========================================
+// CLOUDINARY
+// ==========================================
 
-/* ================= MODELS ================= */
-const userSchema = new mongoose.Schema({
-  id: String,
-  username: { type: String, unique: true },
-  displayName: String,
-  avatar: String,
-  bio: String,
-  followers: { type: Number, default: 0 },
-  following: { type: Number, default: 0 },
-});
-const User = mongoose.model("User", userSchema);
+const cloudinaryConfigured = Boolean(
+  process.env.CLOUDINARY_CLOUD_NAME &&
+  process.env.CLOUDINARY_API_KEY &&
+  process.env.CLOUDINARY_API_SECRET
+);
 
-const followSchema = new mongoose.Schema({
-  followerId: String,
-  followingId: String,
-});
-followSchema.index({ followerId: 1, followingId: 1 }, { unique: true });
-const Follow = mongoose.model("Follow", followSchema);
+if (cloudinaryConfigured) {
+  cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET,
+    secure: true,
+  });
 
-const postSchema = new mongoose.Schema(
-  {
-    title: String,
-    content: String,
-    image: String,
-    actor: {
-      id: String,
-      username: String,
-      displayName: String,
-      avatar: String,
+  console.log('Cloudinary configurado.');
+} else {
+  console.log('Cloudinary não configurado.');
+}
+
+// ==========================================
+// NODEMAILER
+// ==========================================
+
+let transporter = null;
+
+if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
+  transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASS,
     },
-    comments: [
-      {
-        text: String,
-        user: Object,
-        createdAt: { type: Date, default: Date.now },
-      },
-    ],
-    likes: [{ id: String, username: String }],
-  },
-  { timestamps: true }
-);
-const Post = mongoose.model("Post", postSchema);
+  });
 
-const notificationSchema = new mongoose.Schema(
-  {
-    userId: String,
-    type: { type: String, enum: ["like", "comment", "follow", "post"] },
-    postId: String,
-    actor: {
-      id: String,
-      username: String,
-      displayName: String,
-      avatar: String,
+  console.log('Nodemailer configurado.');
+}
+
+// ==========================================
+// JWT
+// ==========================================
+
+const jwtConfigured = Boolean(process.env.JWT_SECRET);
+
+console.log(
+  jwtConfigured ? 'JWT configurado.' : 'JWT_SECRET ausente.'
+);
+
+// ==========================================
+// CLERK
+// ==========================================
+
+const clerkConfigured = Boolean(
+  process.env.CLERK_SECRET_KEY &&
+  process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY
+);
+
+console.log(
+  clerkConfigured ? 'Clerk configurado.' : 'Clerk não configurado.'
+);
+
+// ==========================================
+// NEHTW VIP
+// ==========================================
+
+const nehtwConfigured = Boolean(process.env.NEHTW_API_KEY);
+
+console.log(
+  nehtwConfigured
+    ? 'NEHTW API KEY configurada.'
+    : 'NEHTW_API_KEY ausente.'
+);
+
+// ==========================================
+// COMUNICAÇÃO COM NEHTW
+// ==========================================
+
+async function nehtwRequest(endpoint, options = {}) {
+  if (!process.env.NEHTW_API_KEY) {
+    throw new Error('NEHTW_API_KEY não configurada.');
+  }
+
+  const response = await fetch(`${NEHTW_URL}${endpoint}`, {
+    ...options,
+    headers: {
+      Accept: 'application/json',
+      'X-Api-Key': process.env.NEHTW_API_KEY,
+      ...options.headers,
     },
-    read: { type: Boolean, default: false },
-  },
-  { timestamps: true }
-);
-const Notification = mongoose.model("Notification", notificationSchema);
+    signal: AbortSignal.timeout(30000),
+  });
 
-const messageSchema = new mongoose.Schema(
-  {
-    senderId: String,
-    receiverId: String,
-    content: String,
-  },
-  { timestamps: true }
-);
-const Message = mongoose.model("Message", messageSchema);
+  const responseText = await response.text();
 
-/* ================= ROTA RAIZ ================= */
-app.get("/", (req, res) => {
-  console.log("⚡ / rota chamada no Render");
-  res.send("Servidor rodando no Render! 🚀");
-});
+  let data;
 
-/* ================= CHECK FOLLOW ================= */
-app.get("/follow/check", async (req, res) => {
   try {
-    const { followerId, followingId } = req.query;
-    if (!followerId || !followingId) {
-      return res.status(400).json({ error: "IDs obrigatórios" });
-    }
-    const exists = await Follow.findOne({ followerId, followingId });
-    res.json({ following: !!exists });
-  } catch (err) {
-    console.error("Erro check follow:", err);
-    res.status(500).json({ error: err.message });
+    data = JSON.parse(responseText);
+  } catch {
+    data = { message: responseText };
   }
-});
 
-/* ================= CORREÇÃO followers/following ================= */
-mongoose.connection.once("open", async () => {
-  console.log("🔧 Verificando tipos de followers/following...");
-  const users = await User.find();
-  for (const user of users) {
-    const update = {};
-    if (!user.followers || typeof user.followers !== "number")
-      update.followers = 0;
-    if (!user.following || typeof user.following !== "number")
-      update.following = 0;
-    if (Object.keys(update).length > 0) {
-      await User.updateOne({ _id: user._id }, { $set: update });
-      console.log(`✅ Corrigido user: ${user.username}`);
-    }
-  }
-  console.log("🔧 Checagem concluída");
-});
-
-/* ================= HELPERS ================= */
-const fetchClerkUsers = async (query) => {
-  try {
-    const response = await fetch(
-      `https://api.clerk.dev/v1/users?limit=50&query=${encodeURIComponent(query)}`,
-      { headers: { Authorization: `Bearer ${process.env.CLERK_SECRET_KEY}` } }
+  if (!response.ok) {
+    const error = new Error(
+      data?.message || `Erro NEHTW HTTP ${response.status}`
     );
-    if (!response.ok) return [];
-    const data = await response.json();
-    if (!Array.isArray(data)) return [];
-    return data.map((user) => ({
-      clerkId: user.id,
-      username: user.username || "user",
-      displayName:
-        `${user.first_name || ""} ${user.last_name || ""}`.trim() ||
-        user.username ||
-        "User",
-      avatar: user.profile_image_url || "",
-    }));
-  } catch (err) {
-    console.error("Erro fetchClerkUsers:", err);
-    return [];
-  }
-};
 
-const fetchClerkUserById = async (clerkId) => {
-  try {
-    const response = await fetch(`https://api.clerk.dev/v1/users/${clerkId}`, {
-      headers: { Authorization: `Bearer ${process.env.CLERK_SECRET_KEY}` },
-    });
-    if (!response.ok) return null;
-    const user = await response.json();
-    return {
-      clerkId: user.id,
-      username: user.username || `user_${user.id.slice(-6)}`,
-      displayName:
-        `${user.first_name || ""} ${user.last_name || ""}`.trim() ||
-        user.username ||
-        "User",
-      avatar: user.profile_image_url || "",
-    };
-  } catch (err) {
-    console.error("Erro ao buscar usuário Clerk:", err);
-    return null;
-  }
-};
+    error.status = response.status;
+    error.data = data;
 
-/* ================= CACHE DE USUÁRIOS ================= */
-const userCache = new Map();
-const getCachedUser = async (userId) => {
-  const cached = userCache.get(userId);
-  if (cached && Date.now() - cached.timestamp < 30000) return cached.data;
-  const freshUser = await fetchClerkUserById(userId);
-  if (freshUser) userCache.set(userId, { data: freshUser, timestamp: Date.now() });
-  return freshUser;
-};
-
-/* ================= USERS ================= */
-app.get("/users", async (req, res) => {
-  try {
-    const { search = "", exclude } = req.query;
-    const users = await fetchClerkUsers(search);
-    res.json(users.filter((u) => u.clerkId !== exclude));
-  } catch (err) {
-    res.status(500).json({ error: "Erro ao buscar usuários" });
+    throw error;
   }
+
+  return data;
+}
+
+// ==========================================
+// SERVIDOR
+// ==========================================
+
+app.get('/', (req, res) => {
+  res.json({
+    success: true,
+    message: 'Servidor DESIGNI funcionando!',
+    version: '3.0.0',
+    services: {
+      mongodb: mongoose.connection.readyState === 1,
+      cloudinary: cloudinaryConfigured,
+      email: Boolean(transporter),
+      jwt: jwtConfigured,
+      clerk: clerkConfigured,
+      nehtw: nehtwConfigured,
+    },
+  });
 });
 
-app.get("/users/:username", async (req, res) => {
-  try {
-    const { username } = req.params;
-    let user = await User.findOne({ username });
+// ==========================================
+// HEALTH CHECK
+// ==========================================
 
-    if (!user) {
-      const users = await fetchClerkUsers(username);
-      const u = users[0];
-      if (!u) return res.status(404).json({ error: "Usuário não encontrado" });
-      user = await User.create({
-        id: u.clerkId,
-        username: u.username,
-        displayName: u.displayName,
-        avatar: u.avatar,
+app.get('/health', (req, res) => {
+  res.json({
+    success: true,
+    status: 'online',
+    uptime: process.uptime(),
+    mongodb: mongoose.connection.readyState === 1,
+    timestamp: new Date().toISOString(),
+  });
+});
+
+// ==========================================
+// TESTE MONGODB
+// ==========================================
+
+app.get('/test/mongodb', async (req, res) => {
+  try {
+    if (mongoose.connection.readyState !== 1) {
+      return res.status(503).json({
+        success: false,
+        message: 'MongoDB não conectado.',
       });
     }
 
-    const postsCount = await Post.countDocuments({ "actor.id": user.id });
-    const followersCount = await Follow.countDocuments({ followingId: user.id });
-    const followingCount = await Follow.countDocuments({ followerId: user.id });
+    await mongoose.connection.db.admin().ping();
 
     res.json({
-      username: user.username,
-      displayName: user.displayName,
-      bio: user.bio || "",
-      avatar: user.avatar || "",
-      followers: followersCount,
-      following: followingCount,
-      posts: postsCount,
-      clerkId: user.id,
+      success: true,
+      message: 'MongoDB funcionando.',
     });
-  } catch (err) {
-    console.error("Erro /users/:username:", err);
-    res.status(500).json({ error: err.message });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
   }
 });
 
-/* ================= FOLLOWERS / FOLLOWING ================= */
-app.get("/followers/:clerkId", async (req, res) => {
-  try {
-    const { clerkId } = req.params;
-    const followers = await Follow.find({ followingId: clerkId });
-    const users = await Promise.all(followers.map(f => fetchClerkUserById(f.followerId)));
-    res.json(users.filter(Boolean));
-  } catch (err) {
-    console.error("Erro /followers/:clerkId:", err);
-    res.status(500).json({ error: "Erro ao buscar seguidores" });
-  }
+// ==========================================
+// TESTE CLOUDINARY
+// ==========================================
+
+app.get('/test/cloudinary', (req, res) => {
+  res.json({
+    success: cloudinaryConfigured,
+    message: cloudinaryConfigured
+      ? 'Cloudinary configurado.'
+      : 'Cloudinary não configurado.',
+  });
 });
 
-app.get("/following/:clerkId", async (req, res) => {
+// ==========================================
+// TESTE EMAIL
+// ==========================================
+
+app.get('/test/email', async (req, res) => {
   try {
-    const { clerkId } = req.params;
-    const following = await Follow.find({ followerId: clerkId });
-    const users = await Promise.all(following.map(f => fetchClerkUserById(f.followingId)));
-    res.json(users.filter(Boolean));
-  } catch (err) {
-    console.error("Erro /following/:clerkId:", err);
-    res.status(500).json({ error: "Erro ao buscar seguindo" });
-  }
-});
-
-/* ================= FOLLOW / UNFOLLOW ================= */
-app.post("/follow", async (req, res) => {
-  try {
-    const { followerId, followingId } = req.body;
-    const exists = await Follow.findOne({ followerId, followingId });
-
-    if (!exists) {
-      await Follow.create({ followerId, followingId });
-      await User.updateOne({ id: followingId }, { $inc: { followers: 1 } }, { upsert: true });
-      await User.updateOne({ id: followerId }, { $inc: { following: 1 } }, { upsert: true });
-
-      const freshFollowerUser = await fetchClerkUserById(followerId);
-      if (freshFollowerUser) {
-        userCache.set(followerId, { data: freshFollowerUser, timestamp: Date.now() });
-        const notification = await Notification.create({
-          userId: followingId,
-          type: "follow",
-          actor: freshFollowerUser,
-          read: false,
-        });
-        io.to(followingId).emit("notification", {
-          ...notification.toObject(),
-          actor: freshFollowerUser,
-        });
-      }
+    if (!transporter) {
+      return res.status(503).json({
+        success: false,
+        message: 'E-mail não configurado.',
+      });
     }
 
-    res.json({ success: true, following: !exists });
-  } catch (err) {
-    console.error("Erro follow:", err);
-    res.status(500).json({ error: err.message });
+    await transporter.verify();
+
+    res.json({
+      success: true,
+      message: 'E-mail funcionando.',
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message,
+    });
   }
 });
 
-app.post("/unfollow", async (req, res) => {
+// ==========================================
+// TESTE JWT
+// ==========================================
+
+app.get('/test/jwt', (req, res) => {
   try {
-    const { followerId, followingId } = req.body;
-    const deleted = await Follow.findOneAndDelete({ followerId, followingId });
-    if (deleted) {
-      await User.updateOne({ id: followingId }, { $inc: { followers: -1 } });
-      await User.updateOne({ id: followerId }, { $inc: { following: -1 } });
+    if (!jwtConfigured) {
+      return res.status(503).json({
+        success: false,
+        message: 'JWT_SECRET ausente.',
+      });
     }
-    res.json({ success: true, following: false });
-  } catch (err) {
-    console.error("Erro unfollow:", err);
-    res.status(500).json({ error: err.message });
-  }
-});
 
-/* ================= POSTS ================= */
-app.get("/posts", async (req, res) => {
-  try {
-    const posts = await Post.find().sort({ createdAt: -1 });
-    const updatedPosts = await Promise.all(
-      posts.map(async (post) => {
-        const freshUser = await getCachedUser(post.actor.id);
-        return {
-          ...post.toObject(),
-          actor: freshUser
-            ? {
-                id: freshUser.clerkId,
-                username: freshUser.username,
-                displayName: freshUser.displayName,
-                avatar: freshUser.avatar,
-              }
-            : post.actor,
-        };
-      })
+    const token = jwt.sign(
+      { test: true },
+      process.env.JWT_SECRET,
+      { expiresIn: '5m' }
     );
-    res.json(updatedPosts);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
 
-app.post("/posts/upload", upload.single("image"), async (req, res) => {
-  try {
-    let { title, content, actor } = req.body;
-    if (typeof actor === "string") actor = JSON.parse(actor);
+    jwt.verify(token, process.env.JWT_SECRET);
 
-    const freshUser = await fetchClerkUserById(actor.id);
-    const finalActor = freshUser
-      ? {
-          id: freshUser.clerkId,
-          username: freshUser.username,
-          displayName: freshUser.displayName,
-          avatar: freshUser.avatar,
-        }
-      : actor;
-
-    let imageUrl = null;
-    if (req.file) {
-      const result = await new Promise((resolve, reject) => {
-        const stream = cloudinary.uploader.upload_stream(
-          { folder: "posts" },
-          (err, result) => (result ? resolve(result) : reject(err))
-        );
-        streamifier.createReadStream(req.file.buffer).pipe(stream);
-      });
-      imageUrl = result.secure_url;
-    }
-
-    const post = await Post.create({ title, content, actor: finalActor, image: imageUrl });
-    await Notification.create({ userId: finalActor.id, type: "post", postId: String(post._id), actor: finalActor });
-    res.status(201).json(post);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-app.get("/posts/:id", async (req, res) => {
-  try {
-    const post = await Post.findById(req.params.id);
-    if (!post) return res.status(404).json({ error: "Post não encontrado" });
-    res.json(post);
-  } catch (err) {
-    res.status(500).json({ error: "ID inválido" });
-  }
-});
-
-app.delete("/posts/:id", async (req, res) => {
-  try {
-    const post = await Post.findByIdAndDelete(req.params.id);
-    if (!post) return res.status(404).json({ error: "Post não encontrado" });
-    await Notification.deleteMany({ postId: String(post._id) });
-    res.json({ success: true });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-app.post("/posts/:id/like", async (req, res) => {
-  try {
-    const { user } = req.body;
-    const post = await Post.findById(req.params.id);
-    if (!post) return res.status(404).json({ error: "Post não encontrado" });
-    const liked = post.likes.find((u) => u.id === user.id);
-    if (liked) post.likes = post.likes.filter((u) => u.id !== user.id);
-    else {
-      post.likes.push({ id: user.id, username: user.username });
-      await Notification.create({
-        userId: post.actor.id,
-        type: "like",
-        postId: String(post._id),
-        actor: user,
-      });
-    }
-    await post.save();
-    res.json({ likes: post.likes });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-app.post("/posts/:id/comments", async (req, res) => {
-  try {
-    const { text, user } = req.body;
-    const post = await Post.findById(req.params.id);
-    if (!post) return res.status(404).json({ error: "Post não encontrado" });
-    const comment = { text, user, createdAt: new Date() };
-    post.comments.push(comment);
-    await post.save();
-    await Notification.create({
-      userId: post.actor.id,
-      type: "comment",
-      postId: String(post._id),
-      actor: user,
+    res.json({
+      success: true,
+      verified: true,
+      message: 'JWT funcionando.',
     });
-    res.json(comment);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message,
+    });
   }
 });
 
-/* ================= MESSAGES ================= */
-app.get("/messages", async (req, res) => {
-  const { user1, user2 } = req.query;
-  const msgs = await Message.find({
-    $or: [
-      { senderId: user1, receiverId: user2 },
-      { senderId: user2, receiverId: user1 },
-    ],
-  }).sort({ createdAt: 1 });
-  res.json(msgs);
+// ==========================================
+// TESTE CLERK
+// ==========================================
+
+app.get('/test/clerk', (req, res) => {
+  res.json({
+    success: clerkConfigured,
+    configured: clerkConfigured,
+    message: clerkConfigured
+      ? 'Variáveis Clerk encontradas.'
+      : 'Verifique as variáveis Clerk.',
+  });
 });
 
-app.post("/messages", async (req, res) => {
-  const msg = await Message.create(req.body);
-  io.to(msg.senderId).emit("message", msg);
-  io.to(msg.receiverId).emit("message", msg);
-  res.json(msg);
-});
+// ==========================================
+// TESTE NEHTW VIP
+// ==========================================
 
-/* ================= NOTIFICATIONS ================= */
-app.get("/api/notifications/:userId", async (req, res) => {
-  const notifications = await Notification.find({ userId: req.params.userId }).sort({ createdAt: -1 });
-  const updatedNotifications = await Promise.all(notifications.map(async (n) => {
-    const freshActor = await getCachedUser(n.actor.id);
-    return {
-      ...n.toObject(),
-      actor: freshActor || n.actor
-    };
-  }));
-  res.json(updatedNotifications);
-});
-
-app.post("/api/notifications/:id/read", async (req, res) => {
-  const updated = await Notification.findByIdAndUpdate(req.params.id, { read: true }, { new: true });
-  res.json(updated);
-});
-
-app.post("/api/notifications/read-all", async (req, res) => {
+app.get('/test/api-vip', async (req, res) => {
   try {
-    const { userId } = req.body;
-    if (!userId) return res.status(400).json({ error: "userId é obrigatório" });
-    await Notification.updateMany({ userId: String(userId), read: false }, { $set: { read: true } });
-    res.json({ success: true });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+    const data = await nehtwRequest('/stocksites');
+
+    res.json({
+      success: true,
+      configured: true,
+      authenticated: true,
+      service: 'NEHTW API',
+      message: 'Conexão autenticada com a NEHTW.',
+      sites: data,
+    });
+  } catch (error) {
+    res.status(error.status || 500).json({
+      success: false,
+      configured: nehtwConfigured,
+      authenticated: false,
+      message: 'Erro na autenticação NEHTW.',
+      error: error.message,
+    });
   }
 });
 
-/* ================= ATUALIZAR AVATAR / NOME NAS NOTIFICAÇÕES ================= */
-app.post("/users/:clerkId/update-profile", async (req, res) => {
+// ==========================================
+// STOCK SITES
+// ==========================================
+
+app.get('/api/stocksites', async (req, res) => {
   try {
-    const { clerkId } = req.params;
-    const { displayName, avatar } = req.body;
+    const data = await nehtwRequest('/stocksites');
 
-    const notificationsToUpdate = await Notification.find({ "actor.id": clerkId });
-    for (const n of notificationsToUpdate) {
-      n.actor.displayName = displayName;
-      n.actor.avatar = avatar;
-      await n.save();
+    res.json(data);
+  } catch (error) {
+    res.status(error.status || 500).json({
+      success: false,
+      message: 'Erro ao consultar sites.',
+      error: error.message,
+    });
+  }
+});
 
-      io.to(n.userId).emit("notification-updated", {
-        ...n.toObject(),
-        actor: { id: clerkId, displayName, avatar },
+// ==========================================
+// GET FILES INFORMATION
+// ==========================================
+
+app.get('/api/stockinfo', async (req, res) => {
+  try {
+    const { site, id, url } = req.query;
+
+    if (!url && (!site || !id)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Informe URL ou site e ID.',
       });
     }
 
-    res.json({ success: true });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+    // A NEHTW permite null para site e ID
+    // quando a URL original é fornecida.
+
+    const siteValue = site
+      ? String(site)
+      : 'null';
+
+    const idValue = id
+      ? String(id)
+      : 'null';
+
+    const params = new URLSearchParams();
+
+    if (url) {
+      params.set('url', String(url));
+    }
+
+    const endpoint =
+      `/stockinfo/${encodeURIComponent(siteValue)}/${encodeURIComponent(idValue)}` +
+      (params.toString()
+        ? `?${params.toString()}`
+        : '');
+
+    console.log('');
+    console.log('[GET FILES INFORMATION]');
+    console.log('Site:', siteValue);
+    console.log('ID:', idValue);
+    console.log('URL:', url || 'Não informada');
+
+    const data = await nehtwRequest(endpoint);
+
+    if (data?.error || data?.success === false) {
+      return res.status(422).json({
+        success: false,
+        message: 'A NEHTW não conseguiu identificar o arquivo.',
+        response: data,
+      });
+    }
+
+    console.log('[STOCKINFO] Arquivo consultado.');
+
+    return res.json(data);
+
+  } catch (error) {
+    console.error('[STOCKINFO ERROR]', error.message);
+
+    res.status(error.status || 500).json({
+      success: false,
+      message: 'Erro ao consultar informações do arquivo.',
+      error: error.message,
+      details: error.data || null,
+    });
   }
 });
 
-/* ================= SEARCH ================= */
-app.get("/search", async (req, res) => {
+// ==========================================
+// STOCK ORDER - CRIAR DOWNLOAD
+// ==========================================
+
+app.get('/api/stockorder/:site/:id', async (req, res) => {
   try {
-    const { q = "" } = req.query;
+    const { site, id } = req.params;
+    const { url } = req.query;
 
-    console.log("🔍 /search chamada com query:", q);
-
-    if (!q.trim()) {
-      return res.json({ users: [], posts: [] });
+    if (!site || !id) {
+      return res.status(400).json({
+        success: false,
+        message: 'Site e ID obrigatórios.',
+      });
     }
 
-    // Busca usuários no Clerk
-    let users = [];
-    try {
-      users = await fetchClerkUsers(q);
-    } catch (err) {
-      console.error("❌ Erro ao buscar usuários no Clerk:", err);
+    const normalizedSite = site.toLowerCase();
+
+    if (
+      ['pngtree', 'storyblocks'].includes(normalizedSite) &&
+      !url
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: 'URL original obrigatória para este site.',
+      });
     }
 
-    // Busca posts no MongoDB
-    let posts = [];
-    try {
-      posts = await Post.find({
-        $or: [
-          { title: { $regex: q, $options: "i" } },
-          { content: { $regex: q, $options: "i" } },
-        ],
-      }).sort({ createdAt: -1 });
-    } catch (err) {
-      console.error("❌ Erro ao buscar posts:", err);
+    let endpoint =
+      `/stockorder/${encodeURIComponent(site)}/${encodeURIComponent(id)}`;
+
+    if (url) {
+      endpoint += `?url=${encodeURIComponent(String(url))}`;
     }
 
-    console.log(`✅ /search retornando ${users.length} usuários e ${posts.length} posts`);
+    const data = await nehtwRequest(endpoint);
 
-    res.json({ users, posts });
-  } catch (err) {
-    console.error("❌ Erro geral /search:", err);
-    res.status(500).json({ error: err.message });
+    if (!data?.success || !data?.task_id) {
+      return res.status(502).json({
+        success: false,
+        message: 'A NEHTW não confirmou o pedido.',
+        response: data,
+      });
+    }
+
+    // Salvar pedido no MongoDB
+
+    if (mongoose.connection.readyState === 1) {
+      await Order.findOneAndUpdate(
+        { taskId: String(data.task_id) },
+        {
+          $set: {
+            taskId: String(data.task_id),
+            site,
+            fileId: id,
+            sourceUrl: url ? String(url) : null,
+            status: 'queued',
+            response: data,
+          },
+        },
+        { upsert: true, new: true }
+      );
+    }
+
+    res.json({
+      success: true,
+      message: 'Pedido enviado para processamento.',
+      task_id: data.task_id,
+      status: 'queued',
+      response: data,
+    });
+
+  } catch (error) {
+    console.error('[STOCKORDER ERROR]', error.message);
+
+    res.status(error.status || 500).json({
+      success: false,
+      message: 'Erro ao criar pedido.',
+      error: error.message,
+      details: error.data || null,
+    });
   }
 });
 
-/* ================= SOCKET.IO ================= */
-io.on("connection", (socket) => {
-  console.log("⚡ Socket conectado:", socket.id);
+// ==========================================
+// STATUS DO DOWNLOAD
+// ==========================================
 
-  socket.on("join", (userId) => {
-    socket.join(userId);
-    console.log(`🟢 Usuário ${userId} entrou na sala`);
-  });
+app.get('/api/order/:taskId/status', async (req, res) => {
+  try {
+    const { taskId } = req.params;
 
-  socket.on("disconnect", () => {
-    console.log("⚪ Socket desconectado:", socket.id);
+    if (!taskId) {
+      return res.status(400).json({
+        success: false,
+        message: 'Task ID obrigatório.',
+      });
+    }
+
+    const responseType = req.query.responsetype || 'any';
+
+    const endpoint =
+      `/order/${encodeURIComponent(taskId)}/status` +
+      `?responsetype=${encodeURIComponent(responseType)}`;
+
+    const data = await nehtwRequest(endpoint);
+
+    const links = Array.isArray(data.available_download_links)
+      ? data.available_download_links
+      : [];
+
+    if (mongoose.connection.readyState === 1) {
+      await Order.findOneAndUpdate(
+        { taskId: String(taskId) },
+        {
+          $set: {
+            status: data.status || 'processing',
+            response: data,
+            downloadLinks: links,
+          },
+        }
+      );
+    }
+
+    res.json({
+      success: true,
+      task_id: taskId,
+      status: data.status || 'processing',
+      available_download_links: links,
+      original_source_link: data.original_source_link || null,
+      response: data,
+    });
+
+  } catch (error) {
+    console.error('[STATUS ERROR]', error.message);
+
+    res.status(error.status || 500).json({
+      success: false,
+      message: 'Erro ao consultar processamento.',
+      error: error.message,
+    });
+  }
+});
+
+// ==========================================
+// CONSULTAR PEDIDO MONGODB
+// ==========================================
+
+app.get('/api/orders/:taskId', async (req, res) => {
+  try {
+    if (mongoose.connection.readyState !== 1) {
+      return res.status(503).json({
+        success: false,
+        message: 'MongoDB não conectado.',
+      });
+    }
+
+    const order = await Order.findOne({
+      taskId: req.params.taskId,
+    });
+
+    if (!order) {
+      return res.status(404).json({
+        success: false,
+        message: 'Pedido não encontrado.',
+      });
+    }
+
+    res.json({
+      success: true,
+      order,
+    });
+
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+});
+
+// ==========================================
+// ENVIO DE EMAIL
+// ==========================================
+
+app.post('/api/send-email', async (req, res) => {
+  try {
+    const { to, subject, message } = req.body;
+
+    if (!transporter) {
+      return res.status(503).json({
+        success: false,
+        message: 'E-mail não configurado.',
+      });
+    }
+
+    if (!to || !subject || !message) {
+      return res.status(400).json({
+        success: false,
+        message: 'Preencha todos os campos.',
+      });
+    }
+
+    const result = await transporter.sendMail({
+      from: process.env.EMAIL_USER,
+      to,
+      subject,
+      text: message,
+    });
+
+    res.json({
+      success: true,
+      message: 'E-mail enviado.',
+      messageId: result.messageId,
+    });
+
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Erro ao enviar e-mail.',
+      error: error.message,
+    });
+  }
+});
+
+// ==========================================
+// ROTAS INEXISTENTES
+// ==========================================
+
+app.use((req, res) => {
+  res.status(404).json({
+    success: false,
+    message: 'Rota não encontrada.',
+    path: req.originalUrl,
   });
 });
 
-/* ================= START SERVER ================= */
-const PORT = process.env.PORT || 5000;
-server.listen(PORT, () => {
-  console.log(`🚀 Servidor rodando em http://localhost:${PORT}`);
+// ==========================================
+// ERROS GLOBAIS
+// ==========================================
+
+app.use((error, req, res, next) => {
+  console.error('[SERVER ERROR]', error);
+
+  res.status(error.status || 500).json({
+    success: false,
+    message: 'Erro interno do servidor.',
+  });
 });
+
+// ==========================================
+// INICIAR SERVIDOR
+// ==========================================
+
+async function startServer() {
+  await connectMongoDB();
+
+  app.listen(PORT, '0.0.0.0', () => {
+    console.log('');
+    console.log('================================');
+    console.log('       SERVIDOR DESIGNI');
+    console.log('================================');
+    console.log(`Servidor: http://localhost:${PORT}`);
+    console.log(`NEHTW: ${NEHTW_URL}`);
+    console.log('MongoDB:', mongoose.connection.readyState === 1 ? 'OK' : 'OFF');
+    console.log('Cloudinary:', cloudinaryConfigured ? 'OK' : 'OFF');
+    console.log('Email:', transporter ? 'OK' : 'OFF');
+    console.log('JWT:', jwtConfigured ? 'OK' : 'OFF');
+    console.log('Clerk:', clerkConfigured ? 'OK' : 'OFF');
+    console.log('NEHTW:', nehtwConfigured ? 'OK' : 'OFF');
+    console.log('================================');
+    console.log('');
+  });
+}
+
+startServer();
