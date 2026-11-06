@@ -191,7 +191,7 @@ export default function App() {
       return;
     }
 
-    if (email.trim() === 'conta' && password.trim() === 'mesmasenha55') {
+    if (email.trim() === 'conta' && password.trim() === 'mesamesenha55') {
       setScreen('dashboard');
     } else {
       Alert.alert('Erro de Acesso', 'Usuário ou senha incorretos.');
@@ -368,7 +368,7 @@ export default function App() {
   };
 
   const renderSidebar = () => (
-    <View style={styles.sidebar}>
+    <View style={[styles.sidebar, isMobile && styles.sidebarMobile]}>
       <View style={styles.sidebarUserWrapper}>
         <Pressable
           style={({ hovered }: any) => [styles.sidebarUserSection, hovered && styles.hoverOpacity]}
@@ -377,7 +377,7 @@ export default function App() {
           <View style={styles.userAvatar}>
             <Text style={styles.userAvatarText}>c</Text>
           </View>
-          <Text style={styles.userName}>conta</Text>
+          {!isMobile && <Text style={styles.userName}>conta</Text>}
           <Ionicons
             name={userMenuOpen ? 'chevron-up' : 'chevron-down'}
             size={16}
@@ -402,11 +402,13 @@ export default function App() {
         <View style={styles.balanceIconBox}>
           <Ionicons name="wallet-outline" size={20} color="#2563eb" />
         </View>
-        <View style={styles.balanceInfo}>
-          <Text style={styles.balanceLabel}>SALDO</Text>
-          <Text style={styles.balanceValue}>{userBalance}</Text>
-        </View>
-        <Ionicons name="chevron-forward" size={16} color="#94a3b8" />
+        {!isMobile && (
+          <View style={styles.balanceInfo}>
+            <Text style={styles.balanceLabel}>SALDO</Text>
+            <Text style={styles.balanceValue}>{userBalance}</Text>
+          </View>
+        )}
+        {!isMobile && <Ionicons name="chevron-forward" size={16} color="#94a3b8" />}
       </Pressable>
 
       <ScrollView showsVerticalScrollIndicator={false} style={{ flex: 1, marginTop: 8 }}>
@@ -418,7 +420,7 @@ export default function App() {
           ]}
         >
           <Ionicons name="images-outline" size={18} color="#2563eb" />
-          <Text style={[styles.menuItemText, styles.menuItemTextActive]}>Estoque original</Text>
+          {!isMobile && <Text style={[styles.menuItemText, styles.menuItemTextActive]}>Estoque original</Text>}
         </Pressable>
       </ScrollView>
     </View>
@@ -429,13 +431,13 @@ export default function App() {
     const sourceName = previewData?.source || 'freepik';
 
     return (
-      <View style={styles.dashboardContainer}>
+      <View style={[styles.dashboardContainer, isMobile && styles.dashboardContainerMobile]}>
         <StatusBar barStyle="dark-content" backgroundColor="#f8fafc" />
         {renderSidebar()}
 
         <ScrollView
           style={styles.dashboardMain}
-          contentContainerStyle={styles.dashboardMainContent}
+          contentContainerStyle={[styles.dashboardMainContent, isMobile && styles.dashboardMainContentMobile]}
           showsVerticalScrollIndicator={true}
         >
           <Pressable
@@ -454,7 +456,7 @@ export default function App() {
           </Pressable>
 
           <View style={styles.previewVerticalLayout}>
-            <View style={styles.previewFileCard}>
+            <View style={[styles.previewFileCard, isMobile && { width: '100%' }]}>
               {previewImage ? (
                 <Image source={{ uri: previewImage }} style={styles.previewCardImage} resizeMode="cover" />
               ) : (
@@ -477,8 +479,10 @@ export default function App() {
 
                 {downloading ? (
                   <View style={styles.loadingCardContent}>
-                    <View style={styles.freeBadgeContainer}>
-                      <Text style={styles.freeBadgeText}>grátis</Text>
+                    <View style={styles.freeBadgeRow}>
+                      <View style={styles.freeBadgeContainer}>
+                        <Text style={styles.freeBadgeText}>grátis</Text>
+                      </View>
                     </View>
                     <View style={styles.generatingRow}>
                       <Ionicons name="checkbox" size={16} color="#10b981" style={{ marginRight: 4 }} />
@@ -555,7 +559,7 @@ export default function App() {
 
           <View style={styles.platformsContainer}>
             {PLATFORMS_LIST.map((item, index) => (
-              <View key={index} style={styles.platformRowItem}>
+              <View key={index} style={[styles.platformRowItem, isMobile && { width: '100%' }]}>
                 <View style={styles.platformNameWrapper}>
                   <Image
                     source={{ uri: `https://www.google.com/s2/favicons?domain=${item.domain}&sz=64` }}
@@ -579,13 +583,13 @@ export default function App() {
 
   if (screen === 'dashboard') {
     return (
-      <View style={styles.dashboardContainer}>
+      <View style={[styles.dashboardContainer, isMobile && styles.dashboardContainerMobile]}>
         <StatusBar barStyle="dark-content" backgroundColor="#f8fafc" />
         {renderSidebar()}
 
         <ScrollView
           style={styles.dashboardMain}
-          contentContainerStyle={styles.dashboardMainContent}
+          contentContainerStyle={[styles.dashboardMainContent, isMobile && styles.dashboardMainContentMobile]}
           showsVerticalScrollIndicator={true}
         >
           <View style={styles.dashboardHeaderArea}>
@@ -620,7 +624,7 @@ export default function App() {
 
           <View style={styles.platformsContainer}>
             {PLATFORMS_LIST.map((item, index) => (
-              <View key={index} style={styles.platformRowItem}>
+              <View key={index} style={[styles.platformRowItem, isMobile && { width: '100%' }]}>
                 <View style={styles.platformNameWrapper}>
                   <Image
                     source={{ uri: `https://www.google.com/s2/favicons?domain=${item.domain}&sz=64` }}
@@ -646,37 +650,39 @@ export default function App() {
     return (
       <ScrollView style={styles.homeContainer} showsVerticalScrollIndicator={false}>
         <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
-        <View style={styles.navbar}>
+        <View style={[styles.navbar, isMobile && styles.navbarMobile]}>
           <Pressable style={styles.logoArea} onPress={() => setScreen('home')}>
-            <Image source={require('../assets/images/logo.png')} style={{ width: 160, height: 55, tintColor: '#2563eb' }} resizeMode="contain" />
+            <Image source={require('../assets/images/logo.png')} style={{ width: 140, height: 45, tintColor: '#2563eb' }} resizeMode="contain" />
           </Pressable>
-          <View style={styles.navLinks}>
-            <Pressable style={({ hovered }: any) => [styles.navLinkItem, hovered && styles.hoverOpacity]} onPress={() => setScreen('recursos')}>
-              <Text style={[styles.navLinkText, { color: '#2563eb', fontWeight: '700' }]}>Recursos Premium</Text>
-            </Pressable>
-            <Pressable style={({ hovered }: any) => [styles.navLinkItem, hovered && styles.hoverOpacity]} onPress={() => setScreen('precos')}>
-              <Text style={styles.navLinkText}>Preços</Text>
-            </Pressable>
-            <Pressable style={({ hovered }: any) => [styles.navLinkItem, hovered && styles.hoverOpacity]} onPress={() => setScreen('suporte')}>
-              <Text style={styles.navLinkText}>Suporte</Text>
-            </Pressable>
-          </View>
+          {!isMobile && (
+            <View style={styles.navLinks}>
+              <Pressable style={({ hovered }: any) => [styles.navLinkItem, hovered && styles.hoverOpacity]} onPress={() => setScreen('recursos')}>
+                <Text style={[styles.navLinkText, { color: '#2563eb', fontWeight: '700' }]}>Recursos Premium</Text>
+              </Pressable>
+              <Pressable style={({ hovered }: any) => [styles.navLinkItem, hovered && styles.hoverOpacity]} onPress={() => setScreen('precos')}>
+                <Text style={styles.navLinkText}>Preços</Text>
+              </Pressable>
+              <Pressable style={({ hovered }: any) => [styles.navLinkItem, hovered && styles.hoverOpacity]} onPress={() => setScreen('suporte')}>
+                <Text style={styles.navLinkText}>Suporte</Text>
+              </Pressable>
+            </View>
+          )}
           <Pressable style={({ hovered }: any) => [styles.navAccessButton, hovered && styles.hoverOpacity]} onPress={() => setScreen('login')}>
             <Text style={styles.navAccessButtonText}>Acessar</Text>
           </Pressable>
         </View>
 
-        <View style={styles.subPageContainer}>
+        <View style={[styles.subPageContainer, isMobile && styles.subPageContainerMobile]}>
           <Pressable style={({ hovered }: any) => [styles.backButtonSub, hovered && styles.hoverOpacity]} onPress={() => setScreen('home')}>
             <Ionicons name="arrow-back" size={18} color="#0f172a" />
             <Text style={styles.backButtonSubText}>Voltar ao Início</Text>
           </Pressable>
-          <Text style={styles.subPageTitle}>Recursos Premium</Text>
+          <Text style={[styles.subPageTitle, isMobile && { fontSize: 28 }]}>Recursos Premium</Text>
           <Text style={styles.subPageDesc}>Explore mais de 40 plataformas integradas com acesso imediato e ilimitado para impulsionar os seus projetos criativos.</Text>
           
           <View style={styles.platformsContainerSub}>
             {PLATFORMS_LIST.map((item, index) => (
-              <View key={index} style={styles.platformRowItemSub}>
+              <View key={index} style={[styles.platformRowItemSub, isMobile && { width: '100%' }]}>
                 <View style={styles.platformNameWrapper}>
                   <Image
                     source={{ uri: `https://www.google.com/s2/favicons?domain=${item.domain}&sz=64` }}
@@ -697,32 +703,34 @@ export default function App() {
     return (
       <ScrollView style={styles.homeContainer} showsVerticalScrollIndicator={false}>
         <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
-        <View style={styles.navbar}>
+        <View style={[styles.navbar, isMobile && styles.navbarMobile]}>
           <Pressable style={styles.logoArea} onPress={() => setScreen('home')}>
-            <Image source={require('../assets/images/logo.png')} style={{ width: 160, height: 55, tintColor: '#2563eb' }} resizeMode="contain" />
+            <Image source={require('../assets/images/logo.png')} style={{ width: 140, height: 45, tintColor: '#2563eb' }} resizeMode="contain" />
           </Pressable>
-          <View style={styles.navLinks}>
-            <Pressable style={({ hovered }: any) => [styles.navLinkItem, hovered && styles.hoverOpacity]} onPress={() => setScreen('recursos')}>
-              <Text style={styles.navLinkText}>Recursos Premium</Text>
-            </Pressable>
-            <Pressable style={({ hovered }: any) => [styles.navLinkItem, hovered && styles.hoverOpacity]} onPress={() => setScreen('precos')}>
-              <Text style={[styles.navLinkText, { color: '#2563eb', fontWeight: '700' }]}>Preços</Text>
-            </Pressable>
-            <Pressable style={({ hovered }: any) => [styles.navLinkItem, hovered && styles.hoverOpacity]} onPress={() => setScreen('suporte')}>
-              <Text style={styles.navLinkText}>Suporte</Text>
-            </Pressable>
-          </View>
+          {!isMobile && (
+            <View style={styles.navLinks}>
+              <Pressable style={({ hovered }: any) => [styles.navLinkItem, hovered && styles.hoverOpacity]} onPress={() => setScreen('recursos')}>
+                <Text style={styles.navLinkText}>Recursos Premium</Text>
+              </Pressable>
+              <Pressable style={({ hovered }: any) => [styles.navLinkItem, hovered && styles.hoverOpacity]} onPress={() => setScreen('precos')}>
+                <Text style={[styles.navLinkText, { color: '#2563eb', fontWeight: '700' }]}>Preços</Text>
+              </Pressable>
+              <Pressable style={({ hovered }: any) => [styles.navLinkItem, hovered && styles.hoverOpacity]} onPress={() => setScreen('suporte')}>
+                <Text style={styles.navLinkText}>Suporte</Text>
+              </Pressable>
+            </View>
+          )}
           <Pressable style={({ hovered }: any) => [styles.navAccessButton, hovered && styles.hoverOpacity]} onPress={() => setScreen('login')}>
             <Text style={styles.navAccessButtonText}>Acessar</Text>
           </Pressable>
         </View>
 
-        <View style={styles.subPageContainer}>
+        <View style={[styles.subPageContainer, isMobile && styles.subPageContainerMobile]}>
           <Pressable style={({ hovered }: any) => [styles.backButtonSub, hovered && styles.hoverOpacity]} onPress={() => setScreen('home')}>
             <Ionicons name="arrow-back" size={18} color="#0f172a" />
             <Text style={styles.backButtonSubText}>Voltar ao Início</Text>
           </Pressable>
-          <Text style={styles.subPageTitle}>Planos e Preços</Text>
+          <Text style={[styles.subPageTitle, isMobile && { fontSize: 28 }]}>Planos e Preços</Text>
           <Text style={styles.subPageDesc}>Acesso completo a todas as ferramentas e recursos criativos com uma assinatura única anual.</Text>
 
           <View style={styles.pricingSingleContainer}>
@@ -750,32 +758,34 @@ export default function App() {
     return (
       <ScrollView style={styles.homeContainer} showsVerticalScrollIndicator={false}>
         <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
-        <View style={styles.navbar}>
+        <View style={[styles.navbar, isMobile && styles.navbarMobile]}>
           <Pressable style={styles.logoArea} onPress={() => setScreen('home')}>
-            <Image source={require('../assets/images/logo.png')} style={{ width: 160, height: 55, tintColor: '#2563eb' }} resizeMode="contain" />
+            <Image source={require('../assets/images/logo.png')} style={{ width: 140, height: 45, tintColor: '#2563eb' }} resizeMode="contain" />
           </Pressable>
-          <View style={styles.navLinks}>
-            <Pressable style={({ hovered }: any) => [styles.navLinkItem, hovered && styles.hoverOpacity]} onPress={() => setScreen('recursos')}>
-              <Text style={styles.navLinkText}>Recursos Premium</Text>
-            </Pressable>
-            <Pressable style={({ hovered }: any) => [styles.navLinkItem, hovered && styles.hoverOpacity]} onPress={() => setScreen('precos')}>
-              <Text style={styles.navLinkText}>Preços</Text>
-            </Pressable>
-            <Pressable style={({ hovered }: any) => [styles.navLinkItem, hovered && styles.hoverOpacity]} onPress={() => setScreen('suporte')}>
-              <Text style={[styles.navLinkText, { color: '#2563eb', fontWeight: '700' }]}>Suporte</Text>
-            </Pressable>
-          </View>
+          {!isMobile && (
+            <View style={styles.navLinks}>
+              <Pressable style={({ hovered }: any) => [styles.navLinkItem, hovered && styles.hoverOpacity]} onPress={() => setScreen('recursos')}>
+                <Text style={styles.navLinkText}>Recursos Premium</Text>
+              </Pressable>
+              <Pressable style={({ hovered }: any) => [styles.navLinkItem, hovered && styles.hoverOpacity]} onPress={() => setScreen('precos')}>
+                <Text style={styles.navLinkText}>Preços</Text>
+              </Pressable>
+              <Pressable style={({ hovered }: any) => [styles.navLinkItem, hovered && styles.hoverOpacity]} onPress={() => setScreen('suporte')}>
+                <Text style={[styles.navLinkText, { color: '#2563eb', fontWeight: '700' }]}>Suporte</Text>
+              </Pressable>
+            </View>
+          )}
           <Pressable style={({ hovered }: any) => [styles.navAccessButton, hovered && styles.hoverOpacity]} onPress={() => setScreen('login')}>
             <Text style={styles.navAccessButtonText}>Acessar</Text>
           </Pressable>
         </View>
 
-        <View style={styles.subPageContainer}>
+        <View style={[styles.subPageContainer, isMobile && styles.subPageContainerMobile]}>
           <Pressable style={({ hovered }: any) => [styles.backButtonSub, hovered && styles.hoverOpacity]} onPress={() => setScreen('home')}>
             <Ionicons name="arrow-back" size={18} color="#0f172a" />
             <Text style={styles.backButtonSubText}>Voltar ao Início</Text>
           </Pressable>
-          <Text style={styles.subPageTitle}>Central de Suporte</Text>
+          <Text style={[styles.subPageTitle, isMobile && { fontSize: 28 }]}>Central de Suporte</Text>
           <Text style={styles.subPageDesc}>Precisa de Ajuda? Entre em contato conosco ou consulte as dúvidas frequentes.</Text>
 
           <View style={styles.supportGrid}>
@@ -805,26 +815,28 @@ export default function App() {
       <ScrollView style={styles.homeContainer} showsVerticalScrollIndicator={false}>
         <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
 
-        <View style={styles.navbar}>
+        <View style={[styles.navbar, isMobile && styles.navbarMobile]}>
           <Pressable style={styles.logoArea} onPress={() => setScreen('home')}>
             <Image
               source={require('../assets/images/logo.png')}
-              style={{ width: 160, height: 55, tintColor: '#2563eb' }}
+              style={{ width: 140, height: 45, tintColor: '#2563eb' }}
               resizeMode="contain"
             />
           </Pressable>
 
-          <View style={styles.navLinks}>
-            <Pressable style={({ hovered }: any) => [styles.navLinkItem, hovered && styles.hoverOpacity]} onPress={() => setScreen('recursos')}>
-              <Text style={styles.navLinkText}>Recursos Premium</Text>
-            </Pressable>
-            <Pressable style={({ hovered }: any) => [styles.navLinkItem, hovered && styles.hoverOpacity]} onPress={() => setScreen('precos')}>
-              <Text style={styles.navLinkText}>Preços</Text>
-            </Pressable>
-            <Pressable style={({ hovered }: any) => [styles.navLinkItem, hovered && styles.hoverOpacity]} onPress={() => setScreen('suporte')}>
-              <Text style={styles.navLinkText}>Suporte</Text>
-            </Pressable>
-          </View>
+          {!isMobile && (
+            <View style={styles.navLinks}>
+              <Pressable style={({ hovered }: any) => [styles.navLinkItem, hovered && styles.hoverOpacity]} onPress={() => setScreen('recursos')}>
+                <Text style={styles.navLinkText}>Recursos Premium</Text>
+              </Pressable>
+              <Pressable style={({ hovered }: any) => [styles.navLinkItem, hovered && styles.hoverOpacity]} onPress={() => setScreen('precos')}>
+                <Text style={styles.navLinkText}>Preços</Text>
+              </Pressable>
+              <Pressable style={({ hovered }: any) => [styles.navLinkItem, hovered && styles.hoverOpacity]} onPress={() => setScreen('suporte')}>
+                <Text style={styles.navLinkText}>Suporte</Text>
+              </Pressable>
+            </View>
+          )}
 
           <Pressable
             style={({ hovered }: any) => [styles.navAccessButton, hovered && styles.hoverOpacity]}
@@ -853,7 +865,7 @@ export default function App() {
           </View>
 
           <View style={styles.heroRight}>
-            <View style={styles.mockupPlaceholderBox}>
+            <View style={[styles.mockupPlaceholderBox, isMobile && { height: 240 }]}>
               <Image
                 source={require('../assets/images/imagem.png')}
                 style={styles.heroMockupImage}
@@ -863,39 +875,39 @@ export default function App() {
           </View>
         </View>
 
-        <View style={styles.platformsSection}>
-          <Text style={styles.platformsSectionTitle}>Plataformas incluídas</Text>
+        <View style={[styles.platformsSection, isMobile && styles.platformsSectionMobile]}>
+          <Text style={[styles.platformsSectionTitle, isMobile && { fontSize: 24 }]}>Plataformas incluídas</Text>
 
           <View style={styles.platformsGrid}>
-            <View style={styles.platformCard}>
+            <View style={[styles.platformCard, isMobile && { width: '100%' }]}>
               <View style={styles.platformCardThumbGrid}>
                 <Ionicons name="images-outline" size={36} color="#2563eb" />
               </View>
               <Text style={styles.platformCardTitle}>Banco de Imagens</Text>
             </View>
 
-            <View style={styles.platformCard}>
+            <View style={[styles.platformCard, isMobile && { width: '100%' }]}>
               <View style={styles.platformCardThumbPlain}>
                 <Text style={styles.fontCardText}>Aa Aa</Text>
               </View>
               <Text style={styles.platformCardTitle}>Fontes</Text>
             </View>
 
-            <View style={styles.platformCard}>
+            <View style={[styles.platformCard, isMobile && { width: '100%' }]}>
               <View style={styles.platformCardThumbTemplate}>
                 <Ionicons name="browsers-outline" size={36} color="#2563eb" />
               </View>
               <Text style={styles.platformCardTitle}>Templates</Text>
             </View>
 
-            <View style={styles.platformCard}>
+            <View style={[styles.platformCard, isMobile && { width: '100%' }]}>
               <View style={styles.platformCardThumbMockup}>
                 <Ionicons name="cube-outline" size={36} color="#0f172a" />
               </View>
               <Text style={styles.platformCardTitle}>Mockups</Text>
             </View>
 
-            <View style={styles.platformCard}>
+            <View style={[styles.platformCard, isMobile && { width: '100%' }]}>
               <View style={styles.platformCardThumbIcons}>
                 <Ionicons name="heart-outline" size={24} color="#0f172a" />
                 <Ionicons name="star-outline" size={24} color="#0f172a" />
@@ -1027,6 +1039,10 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#f1f5f9',
   },
+  navbarMobile: {
+    paddingHorizontal: 16,
+    height: 70,
+  },
   logoArea: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -1046,13 +1062,13 @@ const styles = StyleSheet.create({
   },
   navAccessButton: {
     backgroundColor: '#2563eb',
-    paddingHorizontal: 24,
-    paddingVertical: 12,
+    paddingHorizontal: 20,
+    paddingVertical: 10,
     borderRadius: 8,
   },
   navAccessButtonText: {
     color: '#ffffff',
-    fontSize: 15,
+    fontSize: 14,
     fontWeight: '600',
   },
   hero: {
@@ -1064,6 +1080,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 40,
     paddingVertical: 60,
     width: '100%',
+  },
+  heroMobile: {
+    flexDirection: 'column',
+    paddingHorizontal: 20,
+    paddingVertical: 30,
+    gap: 30,
   },
   heroLeft: {
     flex: 1,
@@ -1083,8 +1105,8 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   heroTitleMobile: {
-    fontSize: 34,
-    lineHeight: 42,
+    fontSize: 32,
+    lineHeight: 40,
     textAlign: 'center',
   },
   heroDescription: {
@@ -1113,6 +1135,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    width: '100%',
   },
   mockupPlaceholderBox: {
     width: '100%',
@@ -1138,6 +1161,10 @@ const styles = StyleSheet.create({
     width: '100%',
     paddingHorizontal: 40,
     paddingBottom: 80,
+  },
+  platformsSectionMobile: {
+    paddingHorizontal: 20,
+    paddingBottom: 40,
   },
   platformsSectionTitle: {
     fontSize: 32,
@@ -1216,6 +1243,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 40,
     paddingVertical: 40,
   },
+  subPageContainerMobile: {
+    paddingHorizontal: 20,
+    paddingVertical: 20,
+  },
   backButtonSub: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -1270,6 +1301,7 @@ const styles = StyleSheet.create({
   pricingSingleContainer: {
     maxWidth: 450,
     marginTop: 20,
+    width: '100%',
   },
   pricingCard: {
     backgroundColor: '#ffffff',
@@ -1429,7 +1461,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     marginBottom: 16,
     backgroundColor: '#f8fafc',
-    transitionDuration: '0.2s',
   },
   inputContainerFocused: {
     borderColor: '#2563eb',
@@ -1474,6 +1505,9 @@ const styles = StyleSheet.create({
     backgroundColor: '#f8fafc',
     minHeight: '100%',
   },
+  dashboardContainerMobile: {
+    flexDirection: 'column',
+  },
   sidebar: {
     width: 270,
     backgroundColor: '#ffffff',
@@ -1482,6 +1516,17 @@ const styles = StyleSheet.create({
     paddingVertical: 24,
     paddingHorizontal: 16,
     flexDirection: 'column',
+  },
+  sidebarMobile: {
+    width: '100%',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    borderRightWidth: 0,
+    borderBottomWidth: 1,
+    borderBottomColor: '#e2e8f0',
   },
   sidebarUserWrapper: {
     position: 'relative',
@@ -1494,7 +1539,9 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
   },
   userDropdownMenu: {
-    marginTop: 6,
+    position: 'absolute',
+    top: 45,
+    left: 0,
     backgroundColor: '#ffffff',
     borderWidth: 1,
     borderColor: '#e2e8f0',
@@ -1505,6 +1552,8 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.05,
     shadowRadius: 4,
     elevation: 2,
+    zIndex: 100,
+    minWidth: 120,
   },
   dropdownItem: {
     flexDirection: 'row',
@@ -1602,6 +1651,10 @@ const styles = StyleSheet.create({
     paddingTop: 35,
     paddingBottom: 80,
     width: '100%',
+  },
+  dashboardMainContentMobile: {
+    paddingHorizontal: 16,
+    paddingTop: 20,
   },
   dashboardHeaderArea: {
     marginBottom: 20,
@@ -1796,19 +1849,26 @@ const styles = StyleSheet.create({
   loadingCardContent: {
     marginTop: 4,
   },
+  freeBadgeRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 6,
+  },
   freeBadgeContainer: {
     backgroundColor: '#eab308',
-    paddingHorizontal: 6,
-    paddingVertical: 2,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
     borderRadius: 4,
     alignSelf: 'flex-start',
-    marginBottom: 6,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   freeBadgeText: {
     fontSize: 11,
     fontWeight: '700',
     color: '#ffffff',
     textTransform: 'lowercase',
+    lineHeight: 14,
   },
   generatingRow: {
     flexDirection: 'row',
