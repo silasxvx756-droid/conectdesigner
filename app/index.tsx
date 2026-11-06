@@ -21,7 +21,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useFonts } from 'expo-font';
 
 const STORAGE_KEY = '@cfi_screen_state';
-const PROXY_BASE_URL = 'http://localhost:3000/api';
+const PROXY_BASE_URL = 'http://192.168.18.5:3000/api';
 
 const PLATFORMS_LIST = [
   { name: 'iconscout', cost: '0.6', domain: 'iconscout.com' },
@@ -267,7 +267,7 @@ export default function App() {
       setScreen('preview');
     } catch (error: any) {
       console.error('❌ [ERRO AO BUSCAR INFO]:', error.message || error);
-      Alert.alert('Erro', 'Não foi possível carregar a prévia do arquivo.');
+      Alert.alert('Erro de Conexão', `Não foi possível carregar a prévia:\n${error.message || error}`);
     } finally {
       setLoading(false);
     }
@@ -347,7 +347,7 @@ export default function App() {
       setFinalDownloadUrl(urlFound);
     } catch (error: any) {
       console.error('❌ [ERRO NO PROCESSO]:', error.message || error);
-      Alert.alert('Erro', 'Não foi possível concluir a operação.');
+      Alert.alert('Erro de Conexão', `Não foi possível concluir a operação:\n${error.message || error}`);
     } finally {
       setDownloading(false);
     }
@@ -379,11 +379,6 @@ export default function App() {
             <Text style={styles.userAvatarText}>c</Text>
           </View>
           {!isMobile && <Text style={styles.userName}>conta</Text>}
-          <Ionicons
-            name={userMenuOpen ? 'chevron-up' : 'chevron-down'}
-            size={16}
-            color="#64748b"
-          />
         </Pressable>
       </View>
 
@@ -415,7 +410,6 @@ export default function App() {
         </Pressable>
       </ScrollView>
 
-      {/* Botão Sair fora da seta, fixo na sidebar */}
       <Pressable
         style={({ hovered }: any) => [
           styles.sidebarLogoutButton,
