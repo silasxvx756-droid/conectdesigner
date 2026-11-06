@@ -644,7 +644,7 @@ export default function App() {
 
   if (screen === 'recursos') {
     return (
-      <ScrollView style={styles.homeContainer} contentContainerStyle={{ paddingBottom: 40 }} showsVerticalScrollIndicator={false}>
+      <ScrollView style={styles.homeContainer} contentContainerStyle={{ paddingBottom: isMobile ? 12 : 40 }} showsVerticalScrollIndicator={false}>
         <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
         <View style={[styles.navbar, isMobile && styles.navbarMobile]}>
           <Pressable style={styles.logoArea} onPress={() => setScreen('home')}>
@@ -720,7 +720,7 @@ export default function App() {
 
   if (screen === 'precos') {
     return (
-      <ScrollView style={styles.homeContainer} contentContainerStyle={{ paddingBottom: 40 }} showsVerticalScrollIndicator={false}>
+      <ScrollView style={styles.homeContainer} contentContainerStyle={{ paddingBottom: isMobile ? 12 : 40 }} showsVerticalScrollIndicator={false}>
         <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
         <View style={[styles.navbar, isMobile && styles.navbarMobile]}>
           <Pressable style={styles.logoArea} onPress={() => setScreen('home')}>
@@ -798,7 +798,7 @@ export default function App() {
 
   if (screen === 'suporte') {
     return (
-      <ScrollView style={styles.homeContainer} contentContainerStyle={{ paddingBottom: 40 }} showsVerticalScrollIndicator={false}>
+      <ScrollView style={styles.homeContainer} contentContainerStyle={{ paddingBottom: isMobile ? 12 : 40 }} showsVerticalScrollIndicator={false}>
         <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
         <View style={[styles.navbar, isMobile && styles.navbarMobile]}>
           <Pressable style={styles.logoArea} onPress={() => setScreen('home')}>
@@ -877,11 +877,10 @@ export default function App() {
 
   if (screen === 'home') {
     return (
-      <ScrollView style={styles.homeContainer} contentContainerStyle={{ paddingBottom: 40 }} showsVerticalScrollIndicator={false}>
+      <ScrollView style={styles.homeContainer} contentContainerStyle={{ paddingBottom: isMobile ? 12 : 40 }} showsVerticalScrollIndicator={false}>
         <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
 
         <View style={[styles.navbar, isMobile && styles.navbarMobile]}>
-          {/* Logo retirada da tela inicial conforme solicitado */}
           <View style={styles.logoArea} />
 
           {!isMobile && (
@@ -1116,6 +1115,7 @@ const styles = StyleSheet.create({
   },
   homeContainer: {
     flex: 1,
+    minHeight: 0,
     backgroundColor: '#ffffff',
   },
   navbar: {
@@ -1513,10 +1513,10 @@ const styles = StyleSheet.create({
   },
   loginContainer: {
     flex: 1,
+    minHeight: 0,
     justifyContent: 'center',
     alignItems: 'center',
     padding: 16,
-    minHeight: '100%',
   },
   loginBackButton: {
     position: 'absolute',
@@ -1621,12 +1621,14 @@ const styles = StyleSheet.create({
   },
   dashboardContainer: {
     flex: 1,
+    minHeight: 0,
     flexDirection: 'row',
     backgroundColor: '#ffffff',
-    minHeight: '100%',
   },
   dashboardContainerMobile: {
     flexDirection: 'column',
+    flex: 1,
+    minHeight: 0,
   },
   sidebar: {
     width: 270,
@@ -1756,6 +1758,7 @@ const styles = StyleSheet.create({
   },
   dashboardMain: {
     flex: 1,
+    minHeight: 0,
     backgroundColor: '#ffffff',
   },
   dashboardMainContent: {
@@ -1767,7 +1770,8 @@ const styles = StyleSheet.create({
   dashboardMainContentMobile: {
     paddingHorizontal: 16,
     paddingTop: 16,
-    paddingBottom: 10,
+    paddingBottom: 12,
+    flexGrow: 1,
   },
   dashboardHeaderArea: {
     marginBottom: 16,
