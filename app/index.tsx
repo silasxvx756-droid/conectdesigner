@@ -22,7 +22,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useFonts } from 'expo-font';
 
 const STORAGE_KEY = '@cfi_screen_state';
-const PROXY_BASE_URL = 'http://192.168.18.5:3000/api';
+const PROXY_BASE_URL = 'https://conectdesigner.onrender.com/api';
 
 const PLATFORMS_LIST = [
   { name: 'iconscout', cost: '0.6', domain: 'iconscout.com' },

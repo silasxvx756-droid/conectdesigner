@@ -1,4 +1,3 @@
-
 import 'dotenv/config';
 
 import express from 'express';
@@ -101,6 +100,8 @@ if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
   });
 
   console.log('Nodemailer configurado.');
+} else {
+  console.log('Email: OFF');
 }
 
 // ==========================================
@@ -390,16 +391,8 @@ app.get('/api/stockinfo', async (req, res) => {
       });
     }
 
-    // A NEHTW permite null para site e ID
-    // quando a URL original é fornecida.
-
-    const siteValue = site
-      ? String(site)
-      : 'null';
-
-    const idValue = id
-      ? String(id)
-      : 'null';
+    const siteValue = site ? String(site) : 'null';
+    const idValue = id ? String(id) : 'null';
 
     const params = new URLSearchParams();
 
@@ -409,15 +402,7 @@ app.get('/api/stockinfo', async (req, res) => {
 
     const endpoint =
       `/stockinfo/${encodeURIComponent(siteValue)}/${encodeURIComponent(idValue)}` +
-      (params.toString()
-        ? `?${params.toString()}`
-        : '');
-
-    console.log('');
-    console.log('[GET FILES INFORMATION]');
-    console.log('Site:', siteValue);
-    console.log('ID:', idValue);
-    console.log('URL:', url || 'Não informada');
+      (params.toString() ? `?${params.toString()}` : '');
 
     const data = await nehtwRequest(endpoint);
 
@@ -429,10 +414,7 @@ app.get('/api/stockinfo', async (req, res) => {
       });
     }
 
-    console.log('[STOCKINFO] Arquivo consultado.');
-
     return res.json(data);
-
   } catch (error) {
     console.error('[STOCKINFO ERROR]', error.message);
 
@@ -490,8 +472,6 @@ app.get('/api/stockorder/:site/:id', async (req, res) => {
       });
     }
 
-    // Salvar pedido no MongoDB
-
     if (mongoose.connection.readyState === 1) {
       await Order.findOneAndUpdate(
         { taskId: String(data.task_id) },
@@ -516,7 +496,6 @@ app.get('/api/stockorder/:site/:id', async (req, res) => {
       status: 'queued',
       response: data,
     });
-
   } catch (error) {
     console.error('[STOCKORDER ERROR]', error.message);
 
@@ -577,7 +556,6 @@ app.get('/api/order/:taskId/status', async (req, res) => {
       original_source_link: data.original_source_link || null,
       response: data,
     });
-
   } catch (error) {
     console.error('[STATUS ERROR]', error.message);
 
@@ -617,7 +595,6 @@ app.get('/api/orders/:taskId', async (req, res) => {
       success: true,
       order,
     });
-
   } catch (error) {
     res.status(500).json({
       success: false,
@@ -660,7 +637,6 @@ app.post('/api/send-email', async (req, res) => {
       message: 'E-mail enviado.',
       messageId: result.messageId,
     });
-
   } catch (error) {
     res.status(500).json({
       success: false,
@@ -705,9 +681,9 @@ async function startServer() {
   app.listen(PORT, '0.0.0.0', () => {
     console.log('');
     console.log('================================');
-    console.log('       SERVIDOR DESIGNI');
+    console.log('        SERVIDOR DESIGNI');
     console.log('================================');
-    console.log(`Servidor: http://localhost:${PORT}`);
+    console.log(`Servidor rodando na porta: ${PORT}`);
     console.log(`NEHTW: ${NEHTW_URL}`);
     console.log('MongoDB:', mongoose.connection.readyState === 1 ? 'OK' : 'OFF');
     console.log('Cloudinary:', cloudinaryConfigured ? 'OK' : 'OFF');
