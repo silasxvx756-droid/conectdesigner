@@ -13,6 +13,7 @@ import {
   Platform,
   Linking,
   Image,
+  SafeAreaView,
 } from 'react-native';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -427,7 +428,7 @@ export default function App() {
     const sourceName = previewData?.source || 'freepik';
 
     return (
-      <View style={[styles.dashboardContainer, isMobile && styles.dashboardContainerMobile]}>
+      <SafeAreaView style={[styles.dashboardContainer, isMobile && styles.dashboardContainerMobile]}>
         <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
         {renderSidebar()}
 
@@ -573,13 +574,13 @@ export default function App() {
             ))}
           </View>
         </ScrollView>
-      </View>
+      </SafeAreaView>
     );
   }
 
   if (screen === 'dashboard') {
     return (
-      <View style={[styles.dashboardContainer, isMobile && styles.dashboardContainerMobile]}>
+      <SafeAreaView style={[styles.dashboardContainer, isMobile && styles.dashboardContainerMobile]}>
         <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
         {renderSidebar()}
 
@@ -638,369 +639,377 @@ export default function App() {
             ))}
           </View>
         </ScrollView>
-      </View>
+      </SafeAreaView>
     );
   }
 
   if (screen === 'recursos') {
     return (
-      <ScrollView style={styles.homeContainer} contentContainerStyle={{ paddingBottom: isMobile ? 12 : 40 }} showsVerticalScrollIndicator={false}>
-        <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
-        <View style={[styles.navbar, isMobile && styles.navbarMobile]}>
-          <Pressable style={styles.logoArea} onPress={() => setScreen('home')}>
-            <Image source={require('../assets/images/logo.png')} style={{ width: 140, height: 45, tintColor: '#2563eb' }} resizeMode="contain" />
-          </Pressable>
-          {!isMobile && (
-            <View style={styles.navLinks}>
-              <Pressable style={({ hovered }: any) => [styles.navLinkItem, hovered && styles.hoverOpacity]} onPress={() => setScreen('recursos')}>
-                <Text style={[styles.navLinkText, { color: '#2563eb', fontWeight: '700' }]}>Recursos Premium</Text>
+      <SafeAreaView style={styles.homeSafeArea}>
+        <ScrollView style={styles.homeContainer} contentContainerStyle={styles.scrollContentContainer} showsVerticalScrollIndicator={false}>
+          <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
+          <View style={[styles.navbar, isMobile && styles.navbarMobile]}>
+            <Pressable style={styles.logoArea} onPress={() => setScreen('home')}>
+              <Image source={require('../assets/images/logo.png')} style={{ width: 140, height: 45, tintColor: '#2563eb' }} resizeMode="contain" />
+            </Pressable>
+            {!isMobile && (
+              <View style={styles.navLinks}>
+                <Pressable style={({ hovered }: any) => [styles.navLinkItem, hovered && styles.hoverOpacity]} onPress={() => setScreen('recursos')}>
+                  <Text style={[styles.navLinkText, { color: '#2563eb', fontWeight: '700' }]}>Recursos Premium</Text>
+                </Pressable>
+                <Pressable style={({ hovered }: any) => [styles.navLinkItem, hovered && styles.hoverOpacity]} onPress={() => setScreen('precos')}>
+                  <Text style={styles.navLinkText}>Preços</Text>
+                </Pressable>
+                <Pressable style={({ hovered }: any) => [styles.navLinkItem, hovered && styles.hoverOpacity]} onPress={() => setScreen('suporte')}>
+                  <Text style={styles.navLinkText}>Suporte</Text>
+                </Pressable>
+              </View>
+            )}
+            {isMobile ? (
+              <Pressable onPress={() => setMobileMenuOpen(!mobileMenuOpen)} style={{ padding: 6 }}>
+                <Ionicons name={mobileMenuOpen ? 'close' : 'menu'} size={24} color="#0f172a" />
               </Pressable>
-              <Pressable style={({ hovered }: any) => [styles.navLinkItem, hovered && styles.hoverOpacity]} onPress={() => setScreen('precos')}>
-                <Text style={styles.navLinkText}>Preços</Text>
+            ) : (
+              <Pressable style={({ hovered }: any) => [styles.navAccessButton, hovered && styles.hoverOpacity]} onPress={() => setScreen('login')}>
+                <Text style={styles.navAccessButtonText}>Acessar</Text>
               </Pressable>
-              <Pressable style={({ hovered }: any) => [styles.navLinkItem, hovered && styles.hoverOpacity]} onPress={() => setScreen('suporte')}>
-                <Text style={styles.navLinkText}>Suporte</Text>
+            )}
+          </View>
+
+          {isMobile && mobileMenuOpen && (
+            <View style={styles.mobileDropdownMenu}>
+              <Pressable style={styles.mobileDropdownItem} onPress={() => { setScreen('recursos'); setMobileMenuOpen(false); }}>
+                <Text style={[styles.mobileDropdownText, { color: '#2563eb', fontWeight: '700' }]}>Recursos Premium</Text>
+              </Pressable>
+              <Pressable style={styles.mobileDropdownItem} onPress={() => { setScreen('precos'); setMobileMenuOpen(false); }}>
+                <Text style={styles.mobileDropdownText}>Preços</Text>
+              </Pressable>
+              <Pressable style={styles.mobileDropdownItem} onPress={() => { setScreen('suporte'); setMobileMenuOpen(false); }}>
+                <Text style={styles.mobileDropdownText}>Suporte</Text>
+              </Pressable>
+              <Pressable style={styles.mobileDropdownItemBtn} onPress={() => { setScreen('login'); setMobileMenuOpen(false); }}>
+                <Text style={styles.mobileDropdownBtnText}>Acessar</Text>
               </Pressable>
             </View>
           )}
-          {isMobile ? (
-            <Pressable onPress={() => setMobileMenuOpen(!mobileMenuOpen)} style={{ padding: 6 }}>
-              <Ionicons name={mobileMenuOpen ? 'close' : 'menu'} size={24} color="#0f172a" />
-            </Pressable>
-          ) : (
-            <Pressable style={({ hovered }: any) => [styles.navAccessButton, hovered && styles.hoverOpacity]} onPress={() => setScreen('login')}>
-              <Text style={styles.navAccessButtonText}>Acessar</Text>
-            </Pressable>
-          )}
-        </View>
 
-        {isMobile && mobileMenuOpen && (
-          <View style={styles.mobileDropdownMenu}>
-            <Pressable style={styles.mobileDropdownItem} onPress={() => { setScreen('recursos'); setMobileMenuOpen(false); }}>
-              <Text style={[styles.mobileDropdownText, { color: '#2563eb', fontWeight: '700' }]}>Recursos Premium</Text>
+          <View style={[styles.subPageContainer, isMobile && styles.subPageContainerMobile]}>
+            <Pressable style={({ hovered }: any) => [styles.backButtonSub, hovered && styles.hoverOpacity]} onPress={() => setScreen('home')}>
+              <Ionicons name="arrow-back" size={18} color="#0f172a" />
+              <Text style={styles.backButtonSubText}>Voltar ao Início</Text>
             </Pressable>
-            <Pressable style={styles.mobileDropdownItem} onPress={() => { setScreen('precos'); setMobileMenuOpen(false); }}>
-              <Text style={styles.mobileDropdownText}>Preços</Text>
-            </Pressable>
-            <Pressable style={styles.mobileDropdownItem} onPress={() => { setScreen('suporte'); setMobileMenuOpen(false); }}>
-              <Text style={styles.mobileDropdownText}>Suporte</Text>
-            </Pressable>
-            <Pressable style={styles.mobileDropdownItemBtn} onPress={() => { setScreen('login'); setMobileMenuOpen(false); }}>
-              <Text style={styles.mobileDropdownBtnText}>Acessar</Text>
-            </Pressable>
-          </View>
-        )}
-
-        <View style={[styles.subPageContainer, isMobile && styles.subPageContainerMobile]}>
-          <Pressable style={({ hovered }: any) => [styles.backButtonSub, hovered && styles.hoverOpacity]} onPress={() => setScreen('home')}>
-            <Ionicons name="arrow-back" size={18} color="#0f172a" />
-            <Text style={styles.backButtonSubText}>Voltar ao Início</Text>
-          </Pressable>
-          <Text style={[styles.subPageTitle, isMobile && { fontSize: 28 }]}>Recursos Premium</Text>
-          <Text style={styles.subPageDesc}>Explore mais de 40 plataformas integradas com acesso imediato e ilimitado para impulsionar os seus projetos criativos.</Text>
-          
-          <View style={styles.platformsContainerSub}>
-            {PLATFORMS_LIST.map((item, index) => (
-              <View key={index} style={[styles.platformRowItemSub, isMobile && { width: '100%' }]}>
-                <View style={styles.platformNameWrapper}>
-                  <Image
-                    source={{ uri: `https://www.google.com/s2/favicons?domain=${item.domain}&sz=64` }}
-                    style={styles.platformLogoImageSub}
-                    resizeMode="contain"
-                  />
-                  <Text style={styles.platformNameTextSub}>{item.name.toUpperCase()}</Text>
+            <Text style={[styles.subPageTitle, isMobile && { fontSize: 28 }]}>Recursos Premium</Text>
+            <Text style={styles.subPageDesc}>Explore mais de 40 plataformas integradas com acesso imediato e ilimitado para impulsionar os seus projetos criativos.</Text>
+            
+            <View style={styles.platformsContainerSub}>
+              {PLATFORMS_LIST.map((item, index) => (
+                <View key={index} style={[styles.platformRowItemSub, isMobile && { width: '100%' }]}>
+                  <View style={styles.platformNameWrapper}>
+                    <Image
+                      source={{ uri: `https://www.google.com/s2/favicons?domain=${item.domain}&sz=64` }}
+                      style={styles.platformLogoImageSub}
+                      resizeMode="contain"
+                    />
+                    <Text style={styles.platformNameTextSub}>{item.name.toUpperCase()}</Text>
+                  </View>
                 </View>
-              </View>
-            ))}
+              ))}
+            </View>
           </View>
-        </View>
-      </ScrollView>
+        </ScrollView>
+      </SafeAreaView>
     );
   }
 
   if (screen === 'precos') {
     return (
-      <ScrollView style={styles.homeContainer} contentContainerStyle={{ paddingBottom: isMobile ? 12 : 40 }} showsVerticalScrollIndicator={false}>
-        <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
-        <View style={[styles.navbar, isMobile && styles.navbarMobile]}>
-          <Pressable style={styles.logoArea} onPress={() => setScreen('home')}>
-            <Image source={require('../assets/images/logo.png')} style={{ width: 140, height: 45, tintColor: '#2563eb' }} resizeMode="contain" />
-          </Pressable>
-          {!isMobile && (
-            <View style={styles.navLinks}>
-              <Pressable style={({ hovered }: any) => [styles.navLinkItem, hovered && styles.hoverOpacity]} onPress={() => setScreen('recursos')}>
-                <Text style={styles.navLinkText}>Recursos Premium</Text>
-              </Pressable>
-              <Pressable style={({ hovered }: any) => [styles.navLinkItem, hovered && styles.hoverOpacity]} onPress={() => setScreen('precos')}>
-                <Text style={[styles.navLinkText, { color: '#2563eb', fontWeight: '700' }]}>Preços</Text>
-              </Pressable>
-              <Pressable style={({ hovered }: any) => [styles.navLinkItem, hovered && styles.hoverOpacity]} onPress={() => setScreen('suporte')}>
-                <Text style={styles.navLinkText}>Suporte</Text>
-              </Pressable>
-            </View>
-          )}
-          {isMobile ? (
-            <Pressable onPress={() => setMobileMenuOpen(!mobileMenuOpen)} style={{ padding: 6 }}>
-              <Ionicons name={mobileMenuOpen ? 'close' : 'menu'} size={24} color="#0f172a" />
+      <SafeAreaView style={styles.homeSafeArea}>
+        <ScrollView style={styles.homeContainer} contentContainerStyle={styles.scrollContentContainer} showsVerticalScrollIndicator={false}>
+          <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
+          <View style={[styles.navbar, isMobile && styles.navbarMobile]}>
+            <Pressable style={styles.logoArea} onPress={() => setScreen('home')}>
+              <Image source={require('../assets/images/logo.png')} style={{ width: 140, height: 45, tintColor: '#2563eb' }} resizeMode="contain" />
             </Pressable>
-          ) : (
-            <Pressable style={({ hovered }: any) => [styles.navAccessButton, hovered && styles.hoverOpacity]} onPress={() => setScreen('login')}>
-              <Text style={styles.navAccessButtonText}>Acessar</Text>
-            </Pressable>
-          )}
-        </View>
-
-        {isMobile && mobileMenuOpen && (
-          <View style={styles.mobileDropdownMenu}>
-            <Pressable style={styles.mobileDropdownItem} onPress={() => { setScreen('recursos'); setMobileMenuOpen(false); }}>
-              <Text style={styles.mobileDropdownText}>Recursos Premium</Text>
-            </Pressable>
-            <Pressable style={styles.mobileDropdownItem} onPress={() => { setScreen('precos'); setMobileMenuOpen(false); }}>
-              <Text style={[styles.mobileDropdownText, { color: '#2563eb', fontWeight: '700' }]}>Preços</Text>
-            </Pressable>
-            <Pressable style={styles.mobileDropdownItem} onPress={() => { setScreen('suporte'); setMobileMenuOpen(false); }}>
-              <Text style={styles.mobileDropdownText}>Suporte</Text>
-            </Pressable>
-            <Pressable style={styles.mobileDropdownItemBtn} onPress={() => { setScreen('login'); setMobileMenuOpen(false); }}>
-              <Text style={styles.mobileDropdownBtnText}>Acessar</Text>
-            </Pressable>
-          </View>
-        )}
-
-        <View style={[styles.subPageContainer, isMobile && styles.subPageContainerMobile]}>
-          <Pressable style={({ hovered }: any) => [styles.backButtonSub, hovered && styles.hoverOpacity]} onPress={() => setScreen('home')}>
-            <Ionicons name="arrow-back" size={18} color="#0f172a" />
-            <Text style={styles.backButtonSubText}>Voltar ao Início</Text>
-          </Pressable>
-          <Text style={[styles.subPageTitle, isMobile && { fontSize: 28 }]}>Planos e Preços</Text>
-          <Text style={styles.subPageDesc}>Acesso completo a todas as ferramentas e recursos criativos com uma assinatura única anual.</Text>
-
-          <View style={styles.pricingSingleContainer}>
-            <View style={[styles.pricingCard, styles.pricingCardFeatured]}>
-              <View style={styles.featuredBadge}><Text style={styles.featuredBadgeText}>Plano Completo</Text></View>
-              <Text style={styles.pricingPlanName}>Acesso Anual Ilimitado</Text>
-              <Text style={styles.pricingPrice}>R$ 10<Text style={styles.pricingPeriod}>/ano</Text></Text>
-              <Text style={styles.pricingPlanDesc}>Tudo o que você precisa em um único plano anual.</Text>
-              <View style={styles.pricingFeaturesList}>
-                <Text style={styles.pricingFeatureItem}>✔ Acesso total a todas as plataformas integradas</Text>
-                <Text style={styles.pricingFeatureItem}>✔ Downloads rápidos e ilimitados</Text>
-                <Text style={styles.pricingFeatureItem}>✔ Suporte dedicado</Text>
+            {!isMobile && (
+              <View style={styles.navLinks}>
+                <Pressable style={({ hovered }: any) => [styles.navLinkItem, hovered && styles.hoverOpacity]} onPress={() => setScreen('recursos')}>
+                  <Text style={styles.navLinkText}>Recursos Premium</Text>
+                </Pressable>
+                <Pressable style={({ hovered }: any) => [styles.navLinkItem, hovered && styles.hoverOpacity]} onPress={() => setScreen('precos')}>
+                  <Text style={[styles.navLinkText, { color: '#2563eb', fontWeight: '700' }]}>Preços</Text>
+                </Pressable>
+                <Pressable style={({ hovered }: any) => [styles.navLinkItem, hovered && styles.hoverOpacity]} onPress={() => setScreen('suporte')}>
+                  <Text style={styles.navLinkText}>Suporte</Text>
+                </Pressable>
               </View>
-              <Pressable style={({ hovered }: any) => [styles.pricingButtonFeatured, hovered && styles.hoverOpacity]} onPress={() => setScreen('login')}>
-                <Text style={styles.pricingButtonFeaturedText}>Assinar Agora por R$ 10/ano</Text>
+            )}
+            {isMobile ? (
+              <Pressable onPress={() => setMobileMenuOpen(!mobileMenuOpen)} style={{ padding: 6 }}>
+                <Ionicons name={mobileMenuOpen ? 'close' : 'menu'} size={24} color="#0f172a" />
+              </Pressable>
+            ) : (
+              <Pressable style={({ hovered }: any) => [styles.navAccessButton, hovered && styles.hoverOpacity]} onPress={() => setScreen('login')}>
+                <Text style={styles.navAccessButtonText}>Acessar</Text>
+              </Pressable>
+            )}
+          </View>
+
+          {isMobile && mobileMenuOpen && (
+            <View style={styles.mobileDropdownMenu}>
+              <Pressable style={styles.mobileDropdownItem} onPress={() => { setScreen('recursos'); setMobileMenuOpen(false); }}>
+                <Text style={styles.mobileDropdownText}>Recursos Premium</Text>
+              </Pressable>
+              <Pressable style={styles.mobileDropdownItem} onPress={() => { setScreen('precos'); setMobileMenuOpen(false); }}>
+                <Text style={[styles.mobileDropdownText, { color: '#2563eb', fontWeight: '700' }]}>Preços</Text>
+              </Pressable>
+              <Pressable style={styles.mobileDropdownItem} onPress={() => { setScreen('suporte'); setMobileMenuOpen(false); }}>
+                <Text style={styles.mobileDropdownText}>Suporte</Text>
+              </Pressable>
+              <Pressable style={styles.mobileDropdownItemBtn} onPress={() => { setScreen('login'); setMobileMenuOpen(false); }}>
+                <Text style={styles.mobileDropdownBtnText}>Acessar</Text>
               </Pressable>
             </View>
+          )}
+
+          <View style={[styles.subPageContainer, isMobile && styles.subPageContainerMobile]}>
+            <Pressable style={({ hovered }: any) => [styles.backButtonSub, hovered && styles.hoverOpacity]} onPress={() => setScreen('home')}>
+              <Ionicons name="arrow-back" size={18} color="#0f172a" />
+              <Text style={styles.backButtonSubText}>Voltar ao Início</Text>
+            </Pressable>
+            <Text style={[styles.subPageTitle, isMobile && { fontSize: 28 }]}>Planos e Preços</Text>
+            <Text style={styles.subPageDesc}>Acesso completo a todas as ferramentas e recursos criativos com uma assinatura única anual.</Text>
+
+            <View style={styles.pricingSingleContainer}>
+              <View style={[styles.pricingCard, styles.pricingCardFeatured]}>
+                <View style={styles.featuredBadge}><Text style={styles.featuredBadgeText}>Plano Completo</Text></View>
+                <Text style={styles.pricingPlanName}>Acesso Anual Ilimitado</Text>
+                <Text style={styles.pricingPrice}>R$ 10<Text style={styles.pricingPeriod}>/ano</Text></Text>
+                <Text style={styles.pricingPlanDesc}>Tudo o que você precisa em um único plano anual.</Text>
+                <View style={styles.pricingFeaturesList}>
+                  <Text style={styles.pricingFeatureItem}>✔ Acesso total a todas as plataformas integradas</Text>
+                  <Text style={styles.pricingFeatureItem}>✔ Downloads rápidos e ilimitados</Text>
+                  <Text style={styles.pricingFeatureItem}>✔ Suporte dedicado</Text>
+                </View>
+                <Pressable style={({ hovered }: any) => [styles.pricingButtonFeatured, hovered && styles.hoverOpacity]} onPress={() => setScreen('login')}>
+                  <Text style={styles.pricingButtonFeaturedText}>Assinar Agora por R$ 10/ano</Text>
+                </Pressable>
+              </View>
+            </View>
           </View>
-        </View>
-      </ScrollView>
+        </ScrollView>
+      </SafeAreaView>
     );
   }
 
   if (screen === 'suporte') {
     return (
-      <ScrollView style={styles.homeContainer} contentContainerStyle={{ paddingBottom: isMobile ? 12 : 40 }} showsVerticalScrollIndicator={false}>
-        <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
-        <View style={[styles.navbar, isMobile && styles.navbarMobile]}>
-          <Pressable style={styles.logoArea} onPress={() => setScreen('home')}>
-            <Image source={require('../assets/images/logo.png')} style={{ width: 140, height: 45, tintColor: '#2563eb' }} resizeMode="contain" />
-          </Pressable>
-          {!isMobile && (
-            <View style={styles.navLinks}>
-              <Pressable style={({ hovered }: any) => [styles.navLinkItem, hovered && styles.hoverOpacity]} onPress={() => setScreen('recursos')}>
-                <Text style={styles.navLinkText}>Recursos Premium</Text>
+      <SafeAreaView style={styles.homeSafeArea}>
+        <ScrollView style={styles.homeContainer} contentContainerStyle={styles.scrollContentContainer} showsVerticalScrollIndicator={false}>
+          <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
+          <View style={[styles.navbar, isMobile && styles.navbarMobile]}>
+            <Pressable style={styles.logoArea} onPress={() => setScreen('home')}>
+              <Image source={require('../assets/images/logo.png')} style={{ width: 140, height: 45, tintColor: '#2563eb' }} resizeMode="contain" />
+            </Pressable>
+            {!isMobile && (
+              <View style={styles.navLinks}>
+                <Pressable style={({ hovered }: any) => [styles.navLinkItem, hovered && styles.hoverOpacity]} onPress={() => setScreen('recursos')}>
+                  <Text style={styles.navLinkText}>Recursos Premium</Text>
+                </Pressable>
+                <Pressable style={({ hovered }: any) => [styles.navLinkItem, hovered && styles.hoverOpacity]} onPress={() => setScreen('precos')}>
+                  <Text style={styles.navLinkText}>Preços</Text>
+                </Pressable>
+                <Pressable style={({ hovered }: any) => [styles.navLinkItem, hovered && styles.hoverOpacity]} onPress={() => setScreen('suporte')}>
+                  <Text style={[styles.navLinkText, { color: '#2563eb', fontWeight: '700' }]}>Suporte</Text>
+                </Pressable>
+              </View>
+            )}
+            {isMobile ? (
+              <Pressable onPress={() => setMobileMenuOpen(!mobileMenuOpen)} style={{ padding: 6 }}>
+                <Ionicons name={mobileMenuOpen ? 'close' : 'menu'} size={24} color="#0f172a" />
               </Pressable>
-              <Pressable style={({ hovered }: any) => [styles.navLinkItem, hovered && styles.hoverOpacity]} onPress={() => setScreen('precos')}>
-                <Text style={styles.navLinkText}>Preços</Text>
+            ) : (
+              <Pressable style={({ hovered }: any) => [styles.navAccessButton, hovered && styles.hoverOpacity]} onPress={() => setScreen('login')}>
+                <Text style={styles.navAccessButtonText}>Acessar</Text>
               </Pressable>
-              <Pressable style={({ hovered }: any) => [styles.navLinkItem, hovered && styles.hoverOpacity]} onPress={() => setScreen('suporte')}>
-                <Text style={[styles.navLinkText, { color: '#2563eb', fontWeight: '700' }]}>Suporte</Text>
+            )}
+          </View>
+
+          {isMobile && mobileMenuOpen && (
+            <View style={styles.mobileDropdownMenu}>
+              <Pressable style={styles.mobileDropdownItem} onPress={() => { setScreen('recursos'); setMobileMenuOpen(false); }}>
+                <Text style={styles.mobileDropdownText}>Recursos Premium</Text>
+              </Pressable>
+              <Pressable style={styles.mobileDropdownItem} onPress={() => { setScreen('precos'); setMobileMenuOpen(false); }}>
+                <Text style={styles.mobileDropdownText}>Preços</Text>
+              </Pressable>
+              <Pressable style={styles.mobileDropdownItem} onPress={() => { setScreen('suporte'); setMobileMenuOpen(false); }}>
+                <Text style={[styles.mobileDropdownText, { color: '#2563eb', fontWeight: '700' }]}>Suporte</Text>
+              </Pressable>
+              <Pressable style={styles.mobileDropdownItemBtn} onPress={() => { setScreen('login'); setMobileMenuOpen(false); }}>
+                <Text style={styles.mobileDropdownBtnText}>Acessar</Text>
               </Pressable>
             </View>
           )}
-          {isMobile ? (
-            <Pressable onPress={() => setMobileMenuOpen(!mobileMenuOpen)} style={{ padding: 6 }}>
-              <Ionicons name={mobileMenuOpen ? 'close' : 'menu'} size={24} color="#0f172a" />
-            </Pressable>
-          ) : (
-            <Pressable style={({ hovered }: any) => [styles.navAccessButton, hovered && styles.hoverOpacity]} onPress={() => setScreen('login')}>
-              <Text style={styles.navAccessButtonText}>Acessar</Text>
-            </Pressable>
-          )}
-        </View>
 
-        {isMobile && mobileMenuOpen && (
-          <View style={styles.mobileDropdownMenu}>
-            <Pressable style={styles.mobileDropdownItem} onPress={() => { setScreen('recursos'); setMobileMenuOpen(false); }}>
-              <Text style={styles.mobileDropdownText}>Recursos Premium</Text>
+          <View style={[styles.subPageContainer, isMobile && styles.subPageContainerMobile]}>
+            <Pressable style={({ hovered }: any) => [styles.backButtonSub, hovered && styles.hoverOpacity]} onPress={() => setScreen('home')}>
+              <Ionicons name="arrow-back" size={18} color="#0f172a" />
+              <Text style={styles.backButtonSubText}>Voltar ao Início</Text>
             </Pressable>
-            <Pressable style={styles.mobileDropdownItem} onPress={() => { setScreen('precos'); setMobileMenuOpen(false); }}>
-              <Text style={styles.mobileDropdownText}>Preços</Text>
-            </Pressable>
-            <Pressable style={styles.mobileDropdownItem} onPress={() => { setScreen('suporte'); setMobileMenuOpen(false); }}>
-              <Text style={[styles.mobileDropdownText, { color: '#2563eb', fontWeight: '700' }]}>Suporte</Text>
-            </Pressable>
-            <Pressable style={styles.mobileDropdownItemBtn} onPress={() => { setScreen('login'); setMobileMenuOpen(false); }}>
-              <Text style={styles.mobileDropdownBtnText}>Acessar</Text>
-            </Pressable>
-          </View>
-        )}
+            <Text style={[styles.subPageTitle, isMobile && { fontSize: 28 }]}>Central de Suporte</Text>
+            <Text style={styles.subPageDesc}>Precisa de Ajuda? Entre em contato conosco ou consulte as dúvidas frequentes.</Text>
 
-        <View style={[styles.subPageContainer, isMobile && styles.subPageContainerMobile]}>
-          <Pressable style={({ hovered }: any) => [styles.backButtonSub, hovered && styles.hoverOpacity]} onPress={() => setScreen('home')}>
-            <Ionicons name="arrow-back" size={18} color="#0f172a" />
-            <Text style={styles.backButtonSubText}>Voltar ao Início</Text>
-          </Pressable>
-          <Text style={[styles.subPageTitle, isMobile && { fontSize: 28 }]}>Central de Suporte</Text>
-          <Text style={styles.subPageDesc}>Precisa de Ajuda? Entre em contato conosco ou consulte as dúvidas frequentes.</Text>
-
-          <View style={styles.supportGrid}>
-            <View style={styles.supportCard}>
-              <Ionicons name="chatbubbles-outline" size={32} color="#2563eb" />
-              <Text style={styles.supportCardTitle}>Chat ao Vivo</Text>
-              <Text style={styles.supportCardDesc}>Fale instantaneamente com nossa equipe de atendimento.</Text>
-            </View>
-            <View style={styles.supportCard}>
-              <Ionicons name="mail-outline" size={32} color="#2563eb" />
-              <Text style={styles.supportCardTitle}>E-mail de Suporte</Text>
-              <Text style={styles.supportCardDesc}>suporte@connecteducation.com.br</Text>
-            </View>
-            <View style={styles.supportCard}>
-              <Ionicons name="help-circle-outline" size={32} color="#2563eb" />
-              <Text style={styles.supportCardTitle}>FAQ</Text>
-              <Text style={styles.supportCardDesc}>Consulte perguntas frequentes sobre os downloads e acessos.</Text>
+            <View style={styles.supportGrid}>
+              <View style={styles.supportCard}>
+                <Ionicons name="chatbubbles-outline" size={32} color="#2563eb" />
+                <Text style={styles.supportCardTitle}>Chat ao Vivo</Text>
+                <Text style={styles.supportCardDesc}>Fale instantaneamente com nossa equipe de atendimento.</Text>
+              </View>
+              <View style={styles.supportCard}>
+                <Ionicons name="mail-outline" size={32} color="#2563eb" />
+                <Text style={styles.supportCardTitle}>E-mail de Suporte</Text>
+                <Text style={styles.supportCardDesc}>suporte@connecteducation.com.br</Text>
+              </View>
+              <View style={styles.supportCard}>
+                <Ionicons name="help-circle-outline" size={32} color="#2563eb" />
+                <Text style={styles.supportCardTitle}>FAQ</Text>
+                <Text style={styles.supportCardDesc}>Consulte perguntas frequentes sobre os downloads e acessos.</Text>
+              </View>
             </View>
           </View>
-        </View>
-      </ScrollView>
+        </ScrollView>
+      </SafeAreaView>
     );
   }
 
   if (screen === 'home') {
     return (
-      <ScrollView style={styles.homeContainer} contentContainerStyle={{ paddingBottom: isMobile ? 12 : 40 }} showsVerticalScrollIndicator={false}>
-        <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
+      <SafeAreaView style={styles.homeSafeArea}>
+        <ScrollView style={styles.homeContainer} contentContainerStyle={styles.scrollContentContainer} showsVerticalScrollIndicator={false}>
+          <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
 
-        <View style={[styles.navbar, isMobile && styles.navbarMobile]}>
-          <View style={styles.logoArea} />
+          <View style={[styles.navbar, isMobile && styles.navbarMobile]}>
+            <View style={styles.logoArea} />
 
-          {!isMobile && (
-            <View style={styles.navLinks}>
-              <Pressable style={({ hovered }: any) => [styles.navLinkItem, hovered && styles.hoverOpacity]} onPress={() => setScreen('recursos')}>
-                <Text style={styles.navLinkText}>Recursos Premium</Text>
+            {!isMobile && (
+              <View style={styles.navLinks}>
+                <Pressable style={({ hovered }: any) => [styles.navLinkItem, hovered && styles.hoverOpacity]} onPress={() => setScreen('recursos')}>
+                  <Text style={styles.navLinkText}>Recursos Premium</Text>
+                </Pressable>
+                <Pressable style={({ hovered }: any) => [styles.navLinkItem, hovered && styles.hoverOpacity]} onPress={() => setScreen('precos')}>
+                  <Text style={styles.navLinkText}>Preços</Text>
+                </Pressable>
+                <Pressable style={({ hovered }: any) => [styles.navLinkItem, hovered && styles.hoverOpacity]} onPress={() => setScreen('suporte')}>
+                  <Text style={styles.navLinkText}>Suporte</Text>
+                </Pressable>
+              </View>
+            )}
+
+            {isMobile ? (
+              <Pressable onPress={() => setMobileMenuOpen(!mobileMenuOpen)} style={{ padding: 6 }}>
+                <Ionicons name={mobileMenuOpen ? 'close' : 'menu'} size={24} color="#0f172a" />
               </Pressable>
-              <Pressable style={({ hovered }: any) => [styles.navLinkItem, hovered && styles.hoverOpacity]} onPress={() => setScreen('precos')}>
-                <Text style={styles.navLinkText}>Preços</Text>
+            ) : (
+              <Pressable
+                style={({ hovered }: any) => [styles.navAccessButton, hovered && styles.hoverOpacity]}
+                onPress={() => setScreen('login')}
+              >
+                <Text style={styles.navAccessButtonText}>Acessar</Text>
               </Pressable>
-              <Pressable style={({ hovered }: any) => [styles.navLinkItem, hovered && styles.hoverOpacity]} onPress={() => setScreen('suporte')}>
-                <Text style={styles.navLinkText}>Suporte</Text>
+            )}
+          </View>
+
+          {isMobile && mobileMenuOpen && (
+            <View style={styles.mobileDropdownMenu}>
+              <Pressable style={styles.mobileDropdownItem} onPress={() => { setScreen('recursos'); setMobileMenuOpen(false); }}>
+                <Text style={styles.mobileDropdownText}>Recursos Premium</Text>
+              </Pressable>
+              <Pressable style={styles.mobileDropdownItem} onPress={() => { setScreen('precos'); setMobileMenuOpen(false); }}>
+                <Text style={styles.mobileDropdownText}>Preços</Text>
+              </Pressable>
+              <Pressable style={styles.mobileDropdownItem} onPress={() => { setScreen('suporte'); setMobileMenuOpen(false); }}>
+                <Text style={styles.mobileDropdownText}>Suporte</Text>
+              </Pressable>
+              <Pressable style={styles.mobileDropdownItemBtn} onPress={() => { setScreen('login'); setMobileMenuOpen(false); }}>
+                <Text style={styles.mobileDropdownBtnText}>Acessar</Text>
               </Pressable>
             </View>
           )}
 
-          {isMobile ? (
-            <Pressable onPress={() => setMobileMenuOpen(!mobileMenuOpen)} style={{ padding: 6 }}>
-              <Ionicons name={mobileMenuOpen ? 'close' : 'menu'} size={24} color="#0f172a" />
-            </Pressable>
-          ) : (
-            <Pressable
-              style={({ hovered }: any) => [styles.navAccessButton, hovered && styles.hoverOpacity]}
-              onPress={() => setScreen('login')}
-            >
-              <Text style={styles.navAccessButtonText}>Acessar</Text>
-            </Pressable>
-          )}
-        </View>
+          <View style={[styles.hero, isMobile && styles.heroMobile]}>
+            <View style={[styles.heroLeft, isMobile && styles.heroLeftMobile]}>
+              <Text style={[styles.heroTitle, isMobile && styles.heroTitleMobile]}>
+                Todos os recursos.{'\n'}Um só acesso.
+              </Text>
+              <Text style={styles.heroDescription}>
+                Encontre um mundo de recursos criativos, ferramentas premium e muito mais, em um só lugar.
+              </Text>
 
-        {isMobile && mobileMenuOpen && (
-          <View style={styles.mobileDropdownMenu}>
-            <Pressable style={styles.mobileDropdownItem} onPress={() => { setScreen('recursos'); setMobileMenuOpen(false); }}>
-              <Text style={styles.mobileDropdownText}>Recursos Premium</Text>
-            </Pressable>
-            <Pressable style={styles.mobileDropdownItem} onPress={() => { setScreen('precos'); setMobileMenuOpen(false); }}>
-              <Text style={styles.mobileDropdownText}>Preços</Text>
-            </Pressable>
-            <Pressable style={styles.mobileDropdownItem} onPress={() => { setScreen('suporte'); setMobileMenuOpen(false); }}>
-              <Text style={styles.mobileDropdownText}>Suporte</Text>
-            </Pressable>
-            <Pressable style={styles.mobileDropdownItemBtn} onPress={() => { setScreen('login'); setMobileMenuOpen(false); }}>
-              <Text style={styles.mobileDropdownBtnText}>Acessar</Text>
-            </Pressable>
-          </View>
-        )}
+              <Pressable
+                style={({ hovered }: any) => [styles.heroCtaButton, hovered && styles.hoverOpacity]}
+                onPress={() => setScreen('login')}
+              >
+                <Text style={styles.heroCtaButtonText}>Acesse e confira</Text>
+                <Ionicons name="arrow-forward" size={18} color="#ffffff" />
+              </Pressable>
+            </View>
 
-        <View style={[styles.hero, isMobile && styles.heroMobile]}>
-          <View style={[styles.heroLeft, isMobile && styles.heroLeftMobile]}>
-            <Text style={[styles.heroTitle, isMobile && styles.heroTitleMobile]}>
-              Todos os recursos.{'\n'}Um só acesso.
-            </Text>
-            <Text style={styles.heroDescription}>
-              Encontre um mundo de recursos criativos, ferramentas premium e muito mais, em um só lugar.
-            </Text>
-
-            <Pressable
-              style={({ hovered }: any) => [styles.heroCtaButton, hovered && styles.hoverOpacity]}
-              onPress={() => setScreen('login')}
-            >
-              <Text style={styles.heroCtaButtonText}>Acesse e confira</Text>
-              <Ionicons name="arrow-forward" size={18} color="#ffffff" />
-            </Pressable>
+            <View style={styles.heroRight}>
+              <View style={[styles.mockupPlaceholderBox, isMobile && { height: 240 }]}>
+                <Image
+                  source={require('../assets/images/imagem.png')}
+                  style={styles.heroMockupImage}
+                  resizeMode="cover"
+                />
+              </View>
+            </View>
           </View>
 
-          <View style={styles.heroRight}>
-            <View style={[styles.mockupPlaceholderBox, isMobile && { height: 240 }]}>
-              <Image
-                source={require('../assets/images/imagem.png')}
-                style={styles.heroMockupImage}
-                resizeMode="cover"
-              />
+          <View style={[styles.platformsSection, isMobile && styles.platformsSectionMobile]}>
+            <Text style={[styles.platformsSectionTitle, isMobile && { fontSize: 24 }]}>Plataformas incluídas</Text>
+
+            <View style={styles.platformsGrid}>
+              <View style={[styles.platformCard, isMobile && { width: '100%' }]}>
+                <View style={styles.platformCardThumbGrid}>
+                  <Ionicons name="images-outline" size={36} color="#2563eb" />
+                </View>
+                <Text style={styles.platformCardTitle}>Banco de Imagens</Text>
+              </View>
+
+              <View style={[styles.platformCard, isMobile && { width: '100%' }]}>
+                <View style={styles.platformCardThumbPlain}>
+                  <Text style={styles.fontCardText}>Aa Aa</Text>
+                </View>
+                <Text style={styles.platformCardTitle}>Fontes</Text>
+              </View>
+
+              <View style={[styles.platformCard, isMobile && { width: '100%' }]}>
+                <View style={styles.platformCardThumbTemplate}>
+                  <Ionicons name="browsers-outline" size={36} color="#2563eb" />
+                </View>
+                <Text style={styles.platformCardTitle}>Templates</Text>
+              </View>
+
+              <View style={[styles.platformCard, isMobile && { width: '100%' }]}>
+                <View style={styles.platformCardThumbMockup}>
+                  <Ionicons name="cube-outline" size={36} color="#0f172a" />
+                </View>
+                <Text style={styles.platformCardTitle}>Mockups</Text>
+              </View>
+
+              <View style={[styles.platformCard, isMobile && { width: '100%' }]}>
+                <View style={styles.platformCardThumbIcons}>
+                  <Ionicons name="heart-outline" size={24} color="#0f172a" />
+                  <Ionicons name="star-outline" size={24} color="#0f172a" />
+                  <Ionicons name="search-outline" size={24} color="#0f172a" />
+                  <Ionicons name="person-outline" size={24} color="#0f172a" />
+                </View>
+                <Text style={styles.platformCardTitle}>Ícones</Text>
+              </View>
             </View>
           </View>
-        </View>
-
-        <View style={[styles.platformsSection, isMobile && styles.platformsSectionMobile]}>
-          <Text style={[styles.platformsSectionTitle, isMobile && { fontSize: 24 }]}>Plataformas incluídas</Text>
-
-          <View style={styles.platformsGrid}>
-            <View style={[styles.platformCard, isMobile && { width: '100%' }]}>
-              <View style={styles.platformCardThumbGrid}>
-                <Ionicons name="images-outline" size={36} color="#2563eb" />
-              </View>
-              <Text style={styles.platformCardTitle}>Banco de Imagens</Text>
-            </View>
-
-            <View style={[styles.platformCard, isMobile && { width: '100%' }]}>
-              <View style={styles.platformCardThumbPlain}>
-                <Text style={styles.fontCardText}>Aa Aa</Text>
-              </View>
-              <Text style={styles.platformCardTitle}>Fontes</Text>
-            </View>
-
-            <View style={[styles.platformCard, isMobile && { width: '100%' }]}>
-              <View style={styles.platformCardThumbTemplate}>
-                <Ionicons name="browsers-outline" size={36} color="#2563eb" />
-              </View>
-              <Text style={styles.platformCardTitle}>Templates</Text>
-            </View>
-
-            <View style={[styles.platformCard, isMobile && { width: '100%' }]}>
-              <View style={styles.platformCardThumbMockup}>
-                <Ionicons name="cube-outline" size={36} color="#0f172a" />
-              </View>
-              <Text style={styles.platformCardTitle}>Mockups</Text>
-            </View>
-
-            <View style={[styles.platformCard, isMobile && { width: '100%' }]}>
-              <View style={styles.platformCardThumbIcons}>
-                <Ionicons name="heart-outline" size={24} color="#0f172a" />
-                <Ionicons name="star-outline" size={24} color="#0f172a" />
-                <Ionicons name="search-outline" size={24} color="#0f172a" />
-                <Ionicons name="person-outline" size={24} color="#0f172a" />
-              </View>
-              <Text style={styles.platformCardTitle}>Ícones</Text>
-            </View>
-          </View>
-        </View>
-      </ScrollView>
+        </ScrollView>
+      </SafeAreaView>
     );
   }
 
@@ -1113,10 +1122,17 @@ const styles = StyleSheet.create({
     opacity: 0.8,
     cursor: 'pointer' as any,
   },
+  homeSafeArea: {
+    flex: 1,
+    backgroundColor: '#ffffff',
+  },
   homeContainer: {
     flex: 1,
-    minHeight: 0,
     backgroundColor: '#ffffff',
+  },
+  scrollContentContainer: {
+    flexGrow: 1,
+    paddingBottom: 24,
   },
   navbar: {
     height: 80,
