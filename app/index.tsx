@@ -194,7 +194,7 @@ export default function App() {
       return;
     }
 
-    if (email.trim() === 'conta' && password.trim() === 'mesamesenha55') {
+    if (email.trim() === 'conta' && password.trim() === 'mesmasenha55') {
       setScreen('dashboard');
     } else {
       Alert.alert('Erro de Acesso', 'Usuário ou senha incorretos.');
@@ -516,12 +516,12 @@ export default function App() {
 
             <View style={styles.summaryPanelCard}>
               <View style={styles.summaryContentRow}>
-                <View>
-                  <Text style={styles.summaryPanelTitle}>Resumo</Text>
-                  <Text style={styles.summaryPanelDetails}>
+                <View style={[isMobile && { width: '100%', alignItems: 'center' }]}>
+                  <Text style={[styles.summaryPanelTitle, isMobile && { textAlign: 'center' }]}>Resumo</Text>
+                  <Text style={[styles.summaryPanelDetails, isMobile && { textAlign: 'center' }]}>
                     {sourceName} - 1 link - 0.30 pts
                   </Text>
-                  <Text style={styles.summaryPanelTotal}>
+                  <Text style={[styles.summaryPanelTotal, isMobile && { textAlign: 'center' }]}>
                     Total: 0.30 pts
                   </Text>
                 </View>
@@ -530,12 +530,13 @@ export default function App() {
                   style={({ hovered }: any) => [
                     styles.summaryConfirmButtonCompact,
                     finalDownloadUrl ? { backgroundColor: '#10b981' } : null,
+                    isMobile && { width: '100%' },
                     hovered && styles.hoverOpacity,
                   ]}
                   disabled={downloading}
                   onPress={finalDownloadUrl ? handleExecuteDownload : handleConfirmAndGenerate}
                 >
-                  <Text style={styles.summaryConfirmButtonCompactText}>
+                  <Text style={[styles.summaryConfirmButtonCompactText, isMobile && { textAlign: 'center' }]}>
                     {downloading ? 'Gerando link...' : finalDownloadUrl ? 'Baixar Arquivo' : 'Confirmar para obter todos'}
                   </Text>
                 </Pressable>
@@ -608,15 +609,18 @@ export default function App() {
           <Pressable
             style={({ hovered }: any) => [
               styles.getFilesButton,
+              isMobile && { width: '100%', alignSelf: 'center' },
               hovered && styles.hoverOpacity,
             ]}
             disabled={loading}
             onPress={handleFetchInfoForPreview}
           >
-            <Ionicons name="cloud-download-outline" size={20} color="#ffffff" style={{ marginRight: 8 }} />
-            <Text style={styles.getFilesButtonText}>
-              {loading ? 'Processando URLs...' : 'OBTER informações dos arquivos'}
-            </Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
+              <Ionicons name="cloud-download-outline" size={20} color="#ffffff" style={{ marginRight: 8 }} />
+              <Text style={styles.getFilesButtonText}>
+                {loading ? 'Processando URLs...' : 'OBTER informações dos arquivos'}
+              </Text>
+            </View>
           </Pressable>
 
           <View style={styles.platformsContainer}>
@@ -649,7 +653,7 @@ export default function App() {
         <ScrollView style={styles.homeContainer} contentContainerStyle={styles.scrollContentContainer} showsVerticalScrollIndicator={false}>
           <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
           <View style={[styles.navbar, isMobile && styles.navbarMobile]}>
-            <Pressable style={styles.logoArea} onPress={() => setScreen('home')}>
+            <Pressable style={[styles.logoArea, isMobile && { flex: 1 }]} onPress={() => setScreen('home')}>
               <Image source={require('../assets/images/logo.png')} style={{ width: 140, height: 45, tintColor: '#2563eb' }} resizeMode="contain" />
             </Pressable>
             {!isMobile && (
@@ -698,8 +702,8 @@ export default function App() {
               <Ionicons name="arrow-back" size={18} color="#0f172a" />
               <Text style={styles.backButtonSubText}>Voltar ao Início</Text>
             </Pressable>
-            <Text style={[styles.subPageTitle, isMobile && { fontSize: 28 }]}>Recursos Premium</Text>
-            <Text style={styles.subPageDesc}>Explore mais de 40 plataformas integradas com acesso imediato e ilimitado para impulsionar os seus projetos criativos.</Text>
+            <Text style={[styles.subPageTitle, isMobile && { fontSize: 28, textAlign: 'center' }]}>Recursos Premium</Text>
+            <Text style={[styles.subPageDesc, isMobile && { textAlign: 'center' }]}>Explore mais de 40 plataformas integradas com acesso imediato e ilimitado para impulsionar os seus projetos criativos.</Text>
             
             <View style={styles.platformsContainerSub}>
               {PLATFORMS_LIST.map((item, index) => (
@@ -727,7 +731,7 @@ export default function App() {
         <ScrollView style={styles.homeContainer} contentContainerStyle={styles.scrollContentContainer} showsVerticalScrollIndicator={false}>
           <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
           <View style={[styles.navbar, isMobile && styles.navbarMobile]}>
-            <Pressable style={styles.logoArea} onPress={() => setScreen('home')}>
+            <Pressable style={[styles.logoArea, isMobile && { flex: 1 }]} onPress={() => setScreen('home')}>
               <Image source={require('../assets/images/logo.png')} style={{ width: 140, height: 45, tintColor: '#2563eb' }} resizeMode="contain" />
             </Pressable>
             {!isMobile && (
@@ -776,10 +780,10 @@ export default function App() {
               <Ionicons name="arrow-back" size={18} color="#0f172a" />
               <Text style={styles.backButtonSubText}>Voltar ao Início</Text>
             </Pressable>
-            <Text style={[styles.subPageTitle, isMobile && { fontSize: 28 }]}>Planos e Preços</Text>
-            <Text style={styles.subPageDesc}>Acesso completo a todas as ferramentas e recursos criativos com uma assinatura única anual.</Text>
+            <Text style={[styles.subPageTitle, isMobile && { fontSize: 28, textAlign: 'center' }]}>Planos e Preços</Text>
+            <Text style={[styles.subPageDesc, isMobile && { textAlign: 'center' }]}>Acesso completo a todas as ferramentas e recursos criativos com uma assinatura única anual.</Text>
 
-            <View style={styles.pricingSingleContainer}>
+            <View style={[styles.pricingSingleContainer, isMobile && { alignSelf: 'center' }]}>
               <View style={[styles.pricingCard, styles.pricingCardFeatured]}>
                 <View style={styles.featuredBadge}><Text style={styles.featuredBadgeText}>Plano Completo</Text></View>
                 <Text style={styles.pricingPlanName}>Acesso Anual Ilimitado</Text>
@@ -807,7 +811,7 @@ export default function App() {
         <ScrollView style={styles.homeContainer} contentContainerStyle={styles.scrollContentContainer} showsVerticalScrollIndicator={false}>
           <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
           <View style={[styles.navbar, isMobile && styles.navbarMobile]}>
-            <Pressable style={styles.logoArea} onPress={() => setScreen('home')}>
+            <Pressable style={[styles.logoArea, isMobile && { flex: 1 }]} onPress={() => setScreen('home')}>
               <Image source={require('../assets/images/logo.png')} style={{ width: 140, height: 45, tintColor: '#2563eb' }} resizeMode="contain" />
             </Pressable>
             {!isMobile && (
@@ -856,8 +860,8 @@ export default function App() {
               <Ionicons name="arrow-back" size={18} color="#0f172a" />
               <Text style={styles.backButtonSubText}>Voltar ao Início</Text>
             </Pressable>
-            <Text style={[styles.subPageTitle, isMobile && { fontSize: 28 }]}>Central de Suporte</Text>
-            <Text style={styles.subPageDesc}>Precisa de Ajuda? Entre em contato conosco ou consulte as dúvidas frequentes.</Text>
+            <Text style={[styles.subPageTitle, isMobile && { fontSize: 28, textAlign: 'center' }]}>Central de Suporte</Text>
+            <Text style={[styles.subPageDesc, isMobile && { textAlign: 'center' }]}>Precisa de Ajuda? Entre em contato conosco ou consulte as dúvidas frequentes.</Text>
 
             <View style={styles.supportGrid}>
               <View style={styles.supportCard}>
@@ -889,7 +893,7 @@ export default function App() {
           <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
 
           <View style={[styles.navbar, isMobile && styles.navbarMobile]}>
-            <View style={styles.logoArea} />
+            <View style={[styles.logoArea, isMobile && { flex: 1 }]} />
 
             {!isMobile && (
               <View style={styles.navLinks}>
@@ -941,12 +945,16 @@ export default function App() {
               <Text style={[styles.heroTitle, isMobile && styles.heroTitleMobile]}>
                 Todos os recursos.{'\n'}Um só acesso.
               </Text>
-              <Text style={styles.heroDescription}>
+              <Text style={[styles.heroDescription, isMobile && styles.heroDescriptionMobile]}>
                 Encontre um mundo de recursos criativos, ferramentas premium e muito mais, em um só lugar.
               </Text>
 
               <Pressable
-                style={({ hovered }: any) => [styles.heroCtaButton, hovered && styles.hoverOpacity]}
+                style={({ hovered }: any) => [
+                  styles.heroCtaButton,
+                  isMobile && styles.heroCtaButtonMobile,
+                  hovered && styles.hoverOpacity,
+                ]}
                 onPress={() => setScreen('login')}
               >
                 <Text style={styles.heroCtaButtonText}>Acesse e confira</Text>
@@ -1249,6 +1257,9 @@ const styles = StyleSheet.create({
     color: '#475569',
     marginBottom: 30,
   },
+  heroDescriptionMobile: {
+    textAlign: 'center',
+  },
   heroCtaButton: {
     flexDirection: 'row',
     backgroundColor: '#2563eb',
@@ -1259,6 +1270,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 10,
     alignSelf: 'flex-start',
+  },
+  heroCtaButtonMobile: {
+    alignSelf: 'center',
+    width: '100%',
   },
   heroCtaButtonText: {
     color: '#ffffff',
