@@ -194,7 +194,7 @@ export default function App() {
       return;
     }
 
-    if (email.trim() === 'conta' && password.trim() === 'mesmasenha55') {
+    if (email.trim() === 'conta' && password.trim() === 'mesamesenha55') {
       setScreen('dashboard');
     } else {
       Alert.alert('Erro de Acesso', 'Usuário ou senha incorretos.');
@@ -373,16 +373,6 @@ export default function App() {
 
   const renderSidebar = () => (
     <View style={[styles.sidebar, isMobile && styles.sidebarMobile]}>
-      {isMobile && (
-        <View style={styles.sidebarUserWrapper}>
-          <View style={styles.sidebarUserSection}>
-            <View style={[styles.userAvatar, styles.userAvatarMobile]}>
-              <Text style={[styles.userAvatarText, styles.userAvatarTextMobile]}>c</Text>
-            </View>
-          </View>
-        </View>
-      )}
-
       <Pressable style={({ hovered }: any) => [styles.balanceCard, hovered && styles.hoverOpacity, isMobile && styles.balanceCardMobile]}>
         <View style={styles.balanceIconBox}>
           <Ionicons name="wallet-outline" size={isMobile ? 16 : 20} color="#2563eb" />
@@ -542,17 +532,6 @@ export default function App() {
                   </Text>
                 </Pressable>
               </View>
-            </View>
-          </View>
-
-          <View style={styles.tierBarContainer}>
-            <View style={styles.tierHeader}>
-              <Text style={styles.tierBadge}>⭐ Nível 1</Text>
-              <Text style={styles.tierInfoText}>1/300 downloads pagos em 30 dias — faltam 299 para desbloquear melhores preços</Text>
-              <Ionicons name="help-circle-outline" size={16} color="#94a3b8" />
-            </View>
-            <View style={styles.tierProgressBarBg}>
-              <View style={styles.tierProgressBarFill} />
             </View>
           </View>
 
@@ -1680,53 +1659,6 @@ const styles = StyleSheet.create({
     borderBottomColor: '#e2e8f0',
     backgroundColor: '#ffffff',
   },
-  sidebarUserWrapper: {
-    position: 'relative',
-    marginBottom: 16,
-  },
-  sidebarUserSection: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 4,
-    paddingVertical: 2,
-  },
-  userAvatar: {
-    backgroundColor: '#2563eb',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 8,
-  },
-  userAvatarDesktop: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-  },
-  userAvatarMobile: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    marginRight: 0,
-  },
-  userAvatarText: {
-    color: '#ffffff',
-    fontWeight: '700',
-    textAlign: 'center',
-    includeFontPadding: false,
-  },
-  userAvatarTextDesktop: {
-    fontSize: 22,
-    lineHeight: 24,
-  },
-  userAvatarTextMobile: {
-    fontSize: 16,
-    lineHeight: 18,
-  },
-  userName: {
-    flex: 1,
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#0f172a',
-  },
   balanceCard: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -1946,6 +1878,7 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     gap: 16,
     width: '100%',
+    marginBottom: 16,
   },
   previewFileCard: {
     width: 280,
@@ -2059,6 +1992,7 @@ const styles = StyleSheet.create({
     borderColor: '#e2e8f0',
     borderRadius: 10,
     padding: 16,
+    marginBottom: 16,
   },
   summaryContentRow: {
     flexDirection: 'row',
@@ -2095,46 +2029,5 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: '600',
     color: '#ffffff',
-  },
-  tierBarContainer: {
-    marginTop: 16,
-    backgroundColor: '#ffffff',
-    borderWidth: 1,
-    borderColor: '#e2e8f0',
-    borderRadius: 10,
-    padding: 14,
-    marginBottom: 16,
-  },
-  tierHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: 8,
-  },
-  tierBadge: {
-    backgroundColor: '#f1f5f9',
-    fontSize: 11,
-    fontWeight: '700',
-    paddingHorizontal: 6,
-    paddingVertical: 3,
-    borderRadius: 6,
-    color: '#0f172a',
-  },
-  tierInfoText: {
-    fontSize: 12,
-    color: '#64748b',
-    flex: 1,
-    marginLeft: 10,
-  },
-  tierProgressBarBg: {
-    height: 6,
-    backgroundColor: '#f1f5f9',
-    borderRadius: 3,
-    overflow: 'hidden',
-  },
-  tierProgressBarFill: {
-    width: '0.3%',
-    height: '100%',
-    backgroundColor: '#2563eb',
   },
 });
