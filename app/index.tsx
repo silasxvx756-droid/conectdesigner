@@ -70,7 +70,6 @@ export default function App() {
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
 
   const [userBalance, setUserBalance] = useState('0.20');
 
@@ -1071,17 +1070,10 @@ export default function App() {
               onChangeText={setPassword}
               onFocus={() => setPasswordFocused(true)}
               onBlur={() => setPasswordFocused(false)}
-              secureTextEntry={!showPassword}
+              secureTextEntry={true}
               autoComplete="off"
               selectionColor="#2563eb"
             />
-            <Pressable onPress={() => setShowPassword(!showPassword)} style={{ padding: 4 }}>
-              <Ionicons
-                name={showPassword ? 'eye-outline' : 'eye-off-outline'}
-                size={20}
-                color="#64748b"
-              />
-            </Pressable>
           </View>
 
           <Pressable
