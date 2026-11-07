@@ -194,7 +194,7 @@ export default function App() {
       return;
     }
 
-    if (email.trim() === 'conta' && password.trim() === 'mesamesenha55') {
+    if (email.trim() === 'conta' && password.trim() === 'mesmasenha55') {
       setScreen('dashboard');
     } else {
       Alert.alert('Erro de Acesso', 'Usuário ou senha incorretos.');
