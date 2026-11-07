@@ -395,24 +395,27 @@ export default function App() {
         {!isMobile && <Ionicons name="chevron-forward" size={16} color="#94a3b8" />}
       </Pressable>
 
-      <ScrollView showsVerticalScrollIndicator={false} style={{ flex: 1, marginTop: 8 }}>
-        <Pressable
-          style={({ hovered }: any) => [
-            styles.menuItem,
-            styles.menuItemActive,
-            hovered && styles.hoverOpacity,
-          ]}
-        >
-          <View style={styles.menuIconContainer}>
-            <Ionicons name="images-outline" size={18} color="#2563eb" />
-          </View>
-          {!isMobile && <Text style={[styles.menuItemText, styles.menuItemTextActive]}>Estoque original</Text>}
-        </Pressable>
-      </ScrollView>
+      {!isMobile && (
+        <ScrollView showsVerticalScrollIndicator={false} style={{ flex: 1, marginTop: 8 }}>
+          <Pressable
+            style={({ hovered }: any) => [
+              styles.menuItem,
+              styles.menuItemActive,
+              hovered && styles.hoverOpacity,
+            ]}
+          >
+            <View style={styles.menuIconContainer}>
+              <Ionicons name="images-outline" size={18} color="#2563eb" />
+            </View>
+            <Text style={[styles.menuItemText, styles.menuItemTextActive]}>Estoque original</Text>
+          </Pressable>
+        </ScrollView>
+      )}
 
       <Pressable
         style={({ hovered }: any) => [
           styles.sidebarLogoutButton,
+          isMobile && { borderTopWidth: 0, marginTop: 0, paddingVertical: 0 },
           hovered && styles.hoverOpacity,
         ]}
         onPress={handleLogout}
@@ -1672,10 +1675,11 @@ const styles = StyleSheet.create({
   },
   sidebarMobile: {
     width: '100%',
+    height: 64,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingVertical: 10,
+    paddingVertical: 8,
     paddingHorizontal: 16,
     borderRightWidth: 0,
     borderBottomWidth: 1,
@@ -1684,7 +1688,7 @@ const styles = StyleSheet.create({
   },
   sidebarUserWrapper: {
     position: 'relative',
-    marginBottom: 16,
+    marginBottom: 0,
   },
   sidebarUserSection: {
     flexDirection: 'row',
@@ -1699,7 +1703,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#2563eb',
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 8,
+    marginRight: 0,
   },
   userAvatarText: {
     color: '#ffffff',
@@ -1719,8 +1723,9 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#bfdbfe',
     borderRadius: 10,
-    padding: 10,
-    marginBottom: 16,
+    padding: 8,
+    marginBottom: 0,
+    height: 42,
   },
   balanceIconBox: {
     width: 32,
@@ -1729,7 +1734,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#dbeafe',
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 8,
+    marginRight: 0,
   },
   balanceInfo: {
     flex: 1,
