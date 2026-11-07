@@ -373,14 +373,15 @@ export default function App() {
 
   const renderSidebar = () => (
     <View style={[styles.sidebar, isMobile && styles.sidebarMobile]}>
-      <View style={styles.sidebarUserWrapper}>
-        <View style={styles.sidebarUserSection}>
-          <View style={styles.userAvatar}>
-            <Text style={styles.userAvatarText}>c</Text>
+      {isMobile && (
+        <View style={styles.sidebarUserWrapper}>
+          <View style={styles.sidebarUserSection}>
+            <View style={[styles.userAvatar, styles.userAvatarMobile]}>
+              <Text style={[styles.userAvatarText, styles.userAvatarTextMobile]}>c</Text>
+            </View>
           </View>
-          {!isMobile && <Text style={styles.userName}>conta</Text>}
         </View>
-      </View>
+      )}
 
       <Pressable style={({ hovered }: any) => [styles.balanceCard, hovered && styles.hoverOpacity, isMobile && styles.balanceCardMobile]}>
         <View style={styles.balanceIconBox}>
@@ -1690,18 +1691,35 @@ const styles = StyleSheet.create({
     paddingVertical: 2,
   },
   userAvatar: {
-    width: 34,
-    height: 34,
-    borderRadius: 17,
     backgroundColor: '#2563eb',
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 8,
   },
+  userAvatarDesktop: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+  },
+  userAvatarMobile: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    marginRight: 0,
+  },
   userAvatarText: {
     color: '#ffffff',
     fontWeight: '700',
-    fontSize: 14,
+    textAlign: 'center',
+    includeFontPadding: false,
+  },
+  userAvatarTextDesktop: {
+    fontSize: 22,
+    lineHeight: 24,
+  },
+  userAvatarTextMobile: {
+    fontSize: 16,
+    lineHeight: 18,
   },
   userName: {
     flex: 1,
