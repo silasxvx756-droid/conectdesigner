@@ -25,44 +25,44 @@ const STORAGE_KEY = '@cfi_screen_state';
 const PROXY_BASE_URL = 'https://conectdesigner.onrender.com/api';
 
 const PLATFORMS_LIST = [
-  { name: 'iconscout', cost: '0.6', domain: 'iconscout.com' },
-  { name: 'depositphotos', cost: '1', domain: 'depositphotos.com' },
-  { name: 'motionelements', cost: 'off', domain: 'motionelements.com' },
-  { name: 'shutterstock', cost: '0.8', domain: 'shutterstock.com' },
-  { name: 'dreamstime', cost: '0.8', domain: 'dreamstime.com' },
-  { name: 'istock video hd', cost: '20', domain: 'istockphoto.com' },
-  { name: 'vectorstock', cost: '0.6', domain: 'vectorstock.com' },
-  { name: 'motionarray', cost: '0.3', domain: 'motionarray.com' },
-  { name: 'freepik', cost: '0.3', domain: 'freepik.com' },
-  { name: 'storyblocks', cost: '1', domain: 'storyblocks.com' },
-  { name: 'istockphoto', cost: '0.8', domain: 'istockphoto.com' },
-  { name: '123rf', cost: '0.65', domain: '123rf.com' },
-  { name: 'pixeden', cost: '0.6', domain: 'pixeden.com' },
-  { name: 'ss video 4k', cost: '12', domain: 'shutterstock.com' },
-  { name: 'ss video hd', cost: '7', domain: 'shutterstock.com' },
-  { name: 'uihut', cost: '0.5', domain: 'uihut.com' },
-  { name: 'designi', cost: '0.8', domain: 'designi.com.br' },
-  { name: 'ui8', cost: '3', domain: 'ui8.net' },
-  { name: 'adobestock', cost: '0.4', domain: 'stock.adobe.com' },
-  { name: 'envato', cost: '0.5', domain: 'envato.com' },
-  { name: 'pixelbuddha', cost: '0.6', domain: 'pixelbuddha.net' },
-  { name: 'mockupcloud', cost: '1', domain: 'mockupcloud.com' },
-  { name: 'creativefabrica', cost: '0.5', domain: 'creativefabrica.com' },
-  { name: 'vecteezy', cost: '0.3', domain: 'vecteezy.com' },
-  { name: 'rawpixel', cost: '0.3', domain: 'rawpixel.com' },
-  { name: 'freepik video', cost: '1', domain: 'freepik.com' },
-  { name: 'ss music', cost: '1', domain: 'shutterstock.com' },
-  { name: 'adobestock video', cost: '4.5', domain: 'stock.adobe.com' },
-  { name: 'flaticon', cost: '0.2', domain: 'flaticon.com' },
-  { name: 'craftwork', cost: '2', domain: 'craftwork.design' },
-  { name: 'alamy', cost: '16', domain: 'alamy.com' },
-  { name: 'yellowimages', cost: '12', domain: 'yellowimages.com' },
-  { name: 'artlist music/sfx', cost: '0.4', domain: 'artlist.io' },
-  { name: 'epidemicsound', cost: '0.3', domain: 'epidemicsound.com' },
-  { name: 'artgrid_hd', cost: '0.8', domain: 'artgrid.io' },
-  { name: 'deeezy', cost: '0.5', domain: 'deeezy.com' },
-  { name: 'artlist video/template', cost: '1', domain: 'artlist.io' },
-  { name: 'footagecrate', cost: '1', domain: 'footagecrate.com' },
+  { name: 'iconscout', domain: 'iconscout.com' },
+  { name: 'depositphotos', domain: 'depositphotos.com' },
+  { name: 'motionelements', domain: 'motionelements.com' },
+  { name: 'shutterstock', domain: 'shutterstock.com' },
+  { name: 'dreamstime', domain: 'dreamstime.com' },
+  { name: 'istock video hd', domain: 'istockphoto.com' },
+  { name: 'vectorstock', domain: 'vectorstock.com' },
+  { name: 'motionarray', domain: 'motionarray.com' },
+  { name: 'freepik', domain: 'freepik.com' },
+  { name: 'storyblocks', domain: 'storyblocks.com' },
+  { name: 'istockphoto', domain: 'istockphoto.com' },
+  { name: '123rf', domain: '123rf.com' },
+  { name: 'pixeden', domain: 'pixeden.com' },
+  { name: 'ss video 4k', domain: 'shutterstock.com' },
+  { name: 'ss video hd', domain: 'shutterstock.com' },
+  { name: 'uihut', domain: 'uihut.com' },
+  { name: 'designi', domain: 'designi.com.br' },
+  { name: 'ui8', domain: 'ui8.net' },
+  { name: 'adobestock', domain: 'stock.adobe.com' },
+  { name: 'envato', domain: 'envato.com' },
+  { name: 'pixelbuddha', domain: 'pixelbuddha.net' },
+  { name: 'mockupcloud', domain: 'mockupcloud.com' },
+  { name: 'creativefabrica', domain: 'creativefabrica.com' },
+  { name: 'vecteezy', domain: 'vecteezy.com' },
+  { name: 'rawpixel', domain: 'rawpixel.com' },
+  { name: 'freepik video', domain: 'freepik.com' },
+  { name: 'ss music', domain: 'shutterstock.com' },
+  { name: 'adobestock video', domain: 'stock.adobe.com' },
+  { name: 'flaticon', domain: 'flaticon.com' },
+  { name: 'craftwork', domain: 'craftwork.design' },
+  { name: 'alamy', domain: 'alamy.com' },
+  { name: 'yellowimages', domain: 'yellowimages.com' },
+  { name: 'artlist music/sfx', domain: 'artlist.io' },
+  { name: 'epidemicsound', domain: 'epidemicsound.com' },
+  { name: 'artgrid_hd', domain: 'artgrid.io' },
+  { name: 'deeezy', domain: 'deeezy.com' },
+  { name: 'artlist video/template', domain: 'artlist.io' },
+  { name: 'footagecrate', domain: 'footagecrate.com' },
 ];
 
 export default function App() {
@@ -70,8 +70,6 @@ export default function App() {
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-
-  const [userBalance, setUserBalance] = useState('0.20');
 
   const [imageUrls, setImageUrls] = useState('');
   const [loading, setLoading] = useState(false);
@@ -256,11 +254,13 @@ export default function App() {
           msg.toLowerCase().includes('point') ||
           msg.toLowerCase().includes('balance') ||
           msg.toLowerCase().includes('ponto') ||
-          msg.toLowerCase().includes('saldo')
+          msg.toLowerCase().includes('saldo') ||
+          msg.toLowerCase().includes('falha') ||
+          msg.toLowerCase().includes('erro')
         ) {
-          Alert.alert('Pontos Insuficientes', 'Você está sem pontos para realizar este download.');
+          Alert.alert('Você está no teste grátis');
         } else {
-          Alert.alert('Aviso', msg);
+          Alert.alert('Você está no teste grátis');
         }
         return;
       }
@@ -269,7 +269,7 @@ export default function App() {
       setScreen('preview');
     } catch (error: any) {
       console.error('❌ [ERRO AO BUSCAR INFO]:', error.message || error);
-      Alert.alert('Erro de Conexão', `Não foi possível carregar a prévia:\n${error.message || error}`);
+      Alert.alert('Você está no teste grátis');
     } finally {
       setLoading(false);
     }
@@ -304,11 +304,13 @@ export default function App() {
           orderMsg.toLowerCase().includes('point') ||
           orderMsg.toLowerCase().includes('balance') ||
           orderMsg.toLowerCase().includes('ponto') ||
-          orderMsg.toLowerCase().includes('saldo')
+          orderMsg.toLowerCase().includes('saldo') ||
+          orderMsg.toLowerCase().includes('falha') ||
+          orderMsg.toLowerCase().includes('erro')
         ) {
-          Alert.alert('Pontos Insuficientes', 'Você está sem pontos para realizar este download.');
+          Alert.alert('Você está no teste grátis');
         } else {
-          Alert.alert('Erro', orderMsg);
+          Alert.alert('Você está no teste grátis');
         }
         return;
       }
@@ -342,14 +344,14 @@ export default function App() {
       }
 
       if (!isReady || !urlFound) {
-        Alert.alert('Aviso', 'O tempo limite para gerar o link de download esgotou-se.');
+        Alert.alert('Você está no teste grátis');
         return;
       }
 
       setFinalDownloadUrl(urlFound);
     } catch (error: any) {
       console.error('❌ [ERRO NO PROCESSO]:', error.message || error);
-      Alert.alert('Erro de Conexão', `Não foi possível concluir a operação:\n${error.message || error}`);
+      Alert.alert('Você está no teste grátis');
     } finally {
       setDownloading(false);
     }
@@ -372,17 +374,6 @@ export default function App() {
 
   const renderSidebar = () => (
     <View style={[styles.sidebar, isMobile && styles.sidebarMobile]}>
-      <Pressable style={({ hovered }: any) => [styles.balanceCard, hovered && styles.hoverOpacity, isMobile && styles.balanceCardMobile]}>
-        <View style={styles.balanceIconBox}>
-          <Ionicons name="wallet-outline" size={isMobile ? 16 : 20} color="#2563eb" />
-        </View>
-        <View style={styles.balanceInfo}>
-          {!isMobile && <Text style={styles.balanceLabel}>SALDO</Text>}
-          <Text style={[styles.balanceValue, isMobile && styles.balanceValueMobile]}>{userBalance}</Text>
-        </View>
-        {!isMobile && <Ionicons name="chevron-forward" size={16} color="#94a3b8" />}
-      </Pressable>
-
       {!isMobile && (
         <ScrollView showsVerticalScrollIndicator={false} style={{ flex: 1, marginTop: 8 }}>
           <Pressable
@@ -466,14 +457,9 @@ export default function App() {
 
                 {downloading ? (
                   <View style={styles.loadingCardContent}>
-                    <View style={styles.freeBadgeRow}>
-                      <View style={styles.freeBadgeContainer}>
-                        <Text style={styles.freeBadgeText}>grátis</Text>
-                      </View>
-                    </View>
                     <View style={styles.generatingRow}>
                       <Ionicons name="checkbox" size={16} color="#10b981" style={{ marginRight: 4 }} />
-                      <Text style={styles.generatingText}>Grátis, gerando link de download</Text>
+                      <Text style={styles.generatingText}>Gerando link de download...</Text>
                     </View>
                     <View style={styles.progressBarBg}>
                       <View style={styles.progressBarFill} />
@@ -481,7 +467,7 @@ export default function App() {
                   </View>
                 ) : (
                   <View style={styles.previewCardFooterRow}>
-                    <Text style={styles.previewCostText}>0.3 pts</Text>
+                    <Text style={styles.previewCostText}>Teste Grátis</Text>
                     <Pressable
                       style={({ hovered }: any) => [
                         styles.confirmButtonSmall,
@@ -509,10 +495,7 @@ export default function App() {
                 <View style={[isMobile && { width: '100%', alignItems: 'center' }]}>
                   <Text style={[styles.summaryPanelTitle, isMobile && { textAlign: 'center' }]}>Resumo</Text>
                   <Text style={[styles.summaryPanelDetails, isMobile && { textAlign: 'center' }]}>
-                    {sourceName} - 1 link - 0.30 pts
-                  </Text>
-                  <Text style={[styles.summaryPanelTotal, isMobile && { textAlign: 'center' }]}>
-                    Total: 0.30 pts
+                    {sourceName} - 1 link - Você está no teste grátis
                   </Text>
                 </View>
 
@@ -544,11 +527,6 @@ export default function App() {
                     resizeMode="contain"
                   />
                   <Text style={styles.platformNameText}>{item.name}</Text>
-                </View>
-                <View style={[styles.platformCostBadge, item.cost === 'off' && styles.platformOffBadge]}>
-                  <Text style={[styles.platformCostText, item.cost === 'off' && styles.platformOffText]}>
-                    {item.cost}
-                  </Text>
                 </View>
               </View>
             ))}
@@ -612,11 +590,6 @@ export default function App() {
                     resizeMode="contain"
                   />
                   <Text style={styles.platformNameText}>{item.name}</Text>
-                </View>
-                <View style={[styles.platformCostBadge, item.cost === 'off' && styles.platformOffBadge]}>
-                  <Text style={[styles.platformCostText, item.cost === 'off' && styles.platformOffText]}>
-                    {item.cost}
-                  </Text>
                 </View>
               </View>
             ))}
@@ -1651,48 +1624,6 @@ const styles = StyleSheet.create({
     borderBottomColor: '#e2e8f0',
     backgroundColor: '#ffffff',
   },
-  balanceCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#eff6ff',
-    borderWidth: 1,
-    borderColor: '#bfdbfe',
-    borderRadius: 10,
-    padding: 10,
-    marginBottom: 16,
-  },
-  balanceCardMobile: {
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    marginBottom: 0,
-    height: 36,
-  },
-  balanceIconBox: {
-    width: 32,
-    height: 32,
-    borderRadius: 8,
-    backgroundColor: '#dbeafe',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 8,
-  },
-  balanceInfo: {
-    flex: 1,
-  },
-  balanceLabel: {
-    fontSize: 10,
-    fontWeight: '700',
-    color: '#1d4ed8',
-    letterSpacing: 0.5,
-  },
-  balanceValue: {
-    fontSize: 15,
-    fontWeight: '800',
-    color: '#1e40af',
-  },
-  balanceValueMobile: {
-    fontSize: 13,
-  },
   menuItem: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -1831,23 +1762,6 @@ const styles = StyleSheet.create({
     color: '#334155',
     fontWeight: '600',
   },
-  platformCostBadge: {
-    backgroundColor: '#f1f5f9',
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: 4,
-  },
-  platformCostText: {
-    fontSize: 11,
-    fontWeight: '700',
-    color: '#0f172a',
-  },
-  platformOffBadge: {
-    backgroundColor: '#f1f5f9',
-  },
-  platformOffText: {
-    color: '#94a3b8',
-  },
   backButton: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -1934,27 +1848,6 @@ const styles = StyleSheet.create({
   },
   loadingCardContent: {
     marginTop: 4,
-  },
-  freeBadgeRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 6,
-  },
-  freeBadgeContainer: {
-    backgroundColor: '#eab308',
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: 4,
-    alignSelf: 'flex-start',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  freeBadgeText: {
-    fontSize: 10,
-    fontWeight: '700',
-    color: '#ffffff',
-    textTransform: 'lowercase',
-    lineHeight: 13,
   },
   generatingRow: {
     flexDirection: 'row',
