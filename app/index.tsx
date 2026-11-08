@@ -76,6 +76,7 @@ export default function App() {
   const [downloading, setDownloading] = useState(false);
   const [previewData, setPreviewData] = useState<any>(null);
   const [finalDownloadUrl, setFinalDownloadUrl] = useState('');
+  const [downloadError, setDownloadError] = useState(false);
 
   const [isRestoring, setIsRestoring] = useState(true);
 
@@ -205,6 +206,7 @@ export default function App() {
       setImageUrls('');
       setPreviewData(null);
       setFinalDownloadUrl('');
+      setDownloadError(false);
       setUserMenuOpen(false);
       setMobileMenuOpen(false);
       setScreen('home');
@@ -233,6 +235,7 @@ export default function App() {
     try {
       setLoading(true);
       setFinalDownloadUrl('');
+      setDownloadError(false);
       const targetUrl = urlsArray[0];
 
       const encodedUrl = encodeURIComponent(targetUrl);
@@ -249,19 +252,7 @@ export default function App() {
       const infoData = await infoResponse.json();
 
       if (!infoResponse.ok || !infoData.success) {
-        const msg = infoData.message || 'Falha ao buscar informações da imagem.';
-        if (
-          msg.toLowerCase().includes('point') ||
-          msg.toLowerCase().includes('balance') ||
-          msg.toLowerCase().includes('ponto') ||
-          msg.toLowerCase().includes('saldo') ||
-          msg.toLowerCase().includes('falha') ||
-          msg.toLowerCase().includes('erro')
-        ) {
-          Alert.alert('Você está no teste grátis');
-        } else {
-          Alert.alert('Você está no teste grátis');
-        }
+        Alert.alert('Você está no teste grátis');
         return;
       }
 
@@ -284,6 +275,9 @@ export default function App() {
 
     try {
       setDownloading(true);
+      setDownloadError(false);
+      setFinalDownloadUrl('');
+
       const source = previewData.source || 'freepik';
       const fileId = previewData.id;
 
@@ -299,19 +293,8 @@ export default function App() {
       const orderData = await orderResponse.json();
 
       if (!orderResponse.ok || !orderData.success || !orderData.task_id) {
-        const orderMsg = orderData.message || 'Falha ao criar ordem de download.';
-        if (
-          orderMsg.toLowerCase().includes('point') ||
-          orderMsg.toLowerCase().includes('balance') ||
-          orderMsg.toLowerCase().includes('ponto') ||
-          orderMsg.toLowerCase().includes('saldo') ||
-          orderMsg.toLowerCase().includes('falha') ||
-          orderMsg.toLowerCase().includes('erro')
-        ) {
-          Alert.alert('Você está no teste grátis');
-        } else {
-          Alert.alert('Você está no teste grátis');
-        }
+        setDownloadError(true);
+        Alert.alert('Você está no teste grátis');
         return;
       }
 
@@ -320,11 +303,11 @@ export default function App() {
       let isReady = false;
       let urlFound = '';
       let attempts = 0;
-      const maxAttempts = 10;
+      const maxAttempts = 12;
 
       while (!isReady && attempts < maxAttempts) {
         attempts++;
-        await new Promise((resolve) => setTimeout(resolve, 2000));
+        await new Promise((resolve) => setTimeout(resolve, 1500));
 
         const statusEndpoint = `${PROXY_BASE_URL}/order/${taskId}/status?responsetype=any`;
         const statusResponse = await fetch(statusEndpoint, {
@@ -344,13 +327,15 @@ export default function App() {
       }
 
       if (!isReady || !urlFound) {
-        Alert.alert('Você está no teste grátis');
+        setDownloadError(true);
+        Alert.alert('O link expirou ou falhou', 'Clique em tentar novamente para gerar um novo link.');
         return;
       }
 
       setFinalDownloadUrl(urlFound);
     } catch (error: any) {
       console.error('❌ [ERRO NO PROCESSO]:', error.message || error);
+      setDownloadError(true);
       Alert.alert('Você está no teste grátis');
     } finally {
       setDownloading(false);
@@ -361,7 +346,13 @@ export default function App() {
     if (!finalDownloadUrl) return;
 
     if (Platform.OS === 'web') {
-      window.location.href = finalDownloadUrl;
+      // Dispara o download sem redirecionar a aba para evitar que a aba exiba a mensagem JSON caso expire
+      const link = document.createElement('a');
+      link.href = finalDownloadUrl;
+      link.setAttribute('download', '');
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
     } else {
       const supported = await Linking.canOpenURL(finalDownloadUrl);
       if (supported) {
@@ -427,6 +418,7 @@ export default function App() {
               setScreen('dashboard');
               setPreviewData(null);
               setFinalDownloadUrl('');
+              setDownloadError(false);
             }}
           >
             <Ionicons name="arrow-back-outline" size={18} color="#0f172a" />
@@ -472,17 +464,24 @@ export default function App() {
                       style={({ hovered }: any) => [
                         styles.confirmButtonSmall,
                         finalDownloadUrl ? { backgroundColor: '#10b981', borderColor: '#10b981' } : null,
+                        downloadError ? { backgroundColor: '#f59e0b', borderColor: '#f59e0b' } : null,
                         hovered && styles.hoverOpacity,
                       ]}
-                      onPress={finalDownloadUrl ? handleExecuteDownload : handleConfirmAndGenerate}
+                      onPress={
+                        downloadError
+                          ? handleConfirmAndGenerate
+                          : finalDownloadUrl
+                          ? handleExecuteDownload
+                          : handleConfirmAndGenerate
+                      }
                     >
                       <Text
                         style={[
                           styles.confirmButtonSmallText,
-                          finalDownloadUrl ? { color: '#ffffff' } : null,
+                          (finalDownloadUrl || downloadError) ? { color: '#ffffff' } : null,
                         ]}
                       >
-                        {finalDownloadUrl ? 'Baixar' : 'Confirmar'}
+                        {downloadError ? 'Tentar novamente' : finalDownloadUrl ? 'Baixar' : 'Confirmar'}
                       </Text>
                     </Pressable>
                   </View>
@@ -495,7 +494,9 @@ export default function App() {
                 <View style={[isMobile && { width: '100%', alignItems: 'center' }]}>
                   <Text style={[styles.summaryPanelTitle, isMobile && { textAlign: 'center' }]}>Resumo</Text>
                   <Text style={[styles.summaryPanelDetails, isMobile && { textAlign: 'center' }]}>
-                    {sourceName} - 1 link - Você está no teste grátis
+                    {downloadError
+                      ? 'Link expirado ou indisponível. Clique para tentar novamente.'
+                      : `${sourceName} - 1 link - Você está no teste grátis`}
                   </Text>
                 </View>
 
@@ -503,14 +504,27 @@ export default function App() {
                   style={({ hovered }: any) => [
                     styles.summaryConfirmButtonCompact,
                     finalDownloadUrl ? { backgroundColor: '#10b981' } : null,
+                    downloadError ? { backgroundColor: '#f59e0b' } : null,
                     isMobile && { width: '100%' },
                     hovered && styles.hoverOpacity,
                   ]}
                   disabled={downloading}
-                  onPress={finalDownloadUrl ? handleExecuteDownload : handleConfirmAndGenerate}
+                  onPress={
+                    downloadError
+                      ? handleConfirmAndGenerate
+                      : finalDownloadUrl
+                      ? handleExecuteDownload
+                      : handleConfirmAndGenerate
+                  }
                 >
                   <Text style={[styles.summaryConfirmButtonCompactText, isMobile && { textAlign: 'center' }]}>
-                    {downloading ? 'Gerando link...' : finalDownloadUrl ? 'Baixar Arquivo' : 'Confirmar para obter todos'}
+                    {downloading
+                      ? 'Gerando link...'
+                      : downloadError
+                      ? 'Tentar novamente'
+                      : finalDownloadUrl
+                      ? 'Baixar Arquivo'
+                      : 'Confirmar para obter todos'}
                   </Text>
                 </Pressable>
               </View>
